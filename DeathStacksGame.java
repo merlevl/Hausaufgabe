@@ -38,7 +38,7 @@ public class DeathStacksGame extends Game {
 	public DeathStacksGame() throws Exception {
 		super();
 		nextPlayer = redPlayer;
-		// isRedNext(); // bei Erstellung fängt Rot an
+		// isRedNext(); // bei Erstellung fÃ¤ngt Rot an
 		this.boardHistory.add("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 
 		// TODO: Initialization, if necessary
@@ -224,8 +224,8 @@ public class DeathStacksGame extends Game {
 	 * !!!!!!!!! To be implemented !!!!!!!!!!!!
 	 ******************************************/
 
-	// übergibt Spielzustand
-	// muss nicht auf Validität geprüft werden
+	// Ã¼bergibt Spielzustand
+	// muss nicht auf ValiditÃ¤t geprÃ¼ft werden
 	@Override
 	public void setBoard(String state) {
 		this.boardHistory.add(state);
@@ -243,8 +243,8 @@ public class DeathStacksGame extends Game {
 	 * 
 	 * 			draw? 	WIE KANN SPIELER DRAW REQUESTEN?
 			no: 
-	    	   	if tootall: höchstens 4 Figuren verbleiben auf dem startField 
-				board updaten -- String boardUpdate = neuen String mit Änderungen
+	    	   	if tootall: hÃ¶chstens 4 Figuren verbleiben auf dem startField 
+				board updaten -- String boardUpdate = neuen String mit Ã„nderungen
 				board state speichern -- setBoard(boardUpdate)
 				move speichern -- this.history.add(new Move(...))
 				check if repeating state or sme won
@@ -255,7 +255,7 @@ public class DeathStacksGame extends Game {
 	@Override
 	public boolean tryMove(String moveString, Player player) {
 		
-//		 Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
+//		 Benutzer kÃ¶nnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 
 		if (player == nextPlayer && checkMoveFormat(moveString)) {
 
@@ -265,9 +265,8 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (startField != endField
-					&& getStack(startField, getBoard()).substring(getStack(startField, getBoard()).length() - 1) == nextPlayerString()) {
-				
-				if (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(startField)) {
+					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
+					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(startField)) )) {
 						
 					String newBoard = updateBoard(startField, steps, endField);
 					
@@ -281,7 +280,6 @@ public class DeathStacksGame extends Game {
 						//return aktuellen spielstand
 					return true; 
 					}
-				}
 			}
 		}
 		return false; 
