@@ -26,7 +26,7 @@ public class DeathStacksGame extends Game {
 	private Player bluePlayer;
 	private Player redPlayer;
 
-	// new
+	// new, contains Strings of the board representations throughout the game
 	private List<String> boardHistory = new LinkedList<String>();
 
 	// TODO: internal representation of the game state
@@ -229,7 +229,6 @@ public class DeathStacksGame extends Game {
 	@Override
 	public void setBoard(String state) {
 		this.boardHistory.add(state);
-
 	}
 
 	// Abruf des Spielzustands
@@ -240,23 +239,12 @@ public class DeathStacksGame extends Game {
 
 	/*
 	 * checks Move and possibly executes it
-	 * 
-	 * 			draw? 	WIE KANN SPIELER DRAW REQUESTEN?
-			no: 
-	    	   	if tootall: höchstens 4 Figuren verbleiben auf dem startField 
-				board updaten -- String boardUpdate = neuen String mit Änderungen
-				board state speichern -- setBoard(boardUpdate)
-				move speichern -- this.history.add(new Move(...))
-				check if repeating state or sme won
-						yes: finished, gameStatus updaten, return aktuellen spielstand
-						no: anderer Spieler dran, return aktuellen spielstand
-		 
 	 */
 	@Override
 	public boolean tryMove(String moveString, Player player) {
 		
 //		 Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
-
+//		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
 		if (player == nextPlayer && checkMoveFormat(moveString)) {
 
 			String[] array = moveString.split("-");
@@ -266,7 +254,7 @@ public class DeathStacksGame extends Game {
 
 			if (startField != endField
 					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(startField)) )) {
+					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )) { //geht so nicht
 						
 					String newBoard = updateBoard(startField, steps, endField);
 					
@@ -393,6 +381,7 @@ public class DeathStacksGame extends Game {
 	 * returns an ArrayList containing all stacks of that current player that are higher than 4
 	 */
 	private ArrayList<String> tooTall(String board) {
+		
 		ArrayList<String> tallStacks = new ArrayList<String>();
 
 		for (String row : board.split("/")) {
@@ -410,7 +399,9 @@ public class DeathStacksGame extends Game {
 	 */
 	private boolean repeatingState() {
 
-		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
+		if (boardHistory.stream()
+				.filter(i -> Collections.frequency(boardHistory, i) > 2)
+				.collect(Collectors.toSet())
 				.isEmpty())
 			return false;
 		else 
