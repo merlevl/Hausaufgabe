@@ -242,7 +242,7 @@ public class DeathStacksGame extends Game {
 	 */
 	@Override
 	public boolean tryMove(String moveString, Player player) {
-		
+
 //		 Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 //		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
 		if (player == nextPlayer && checkMoveFormat(moveString)) {
@@ -252,27 +252,27 @@ public class DeathStacksGame extends Game {
 			Integer steps = Integer.parseInt(array[1]);
 			String endField = array[2];
 
-			if (startField != endField
-					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )) { //geht so nicht
-						
-					String newBoard = updateBoard(startField, steps, endField);
-					
-					if( getStack(startField, newBoard).length() <= 4 ) {
-						
-					setBoard(newBoard);
-					this.history.add(new Move(moveString, getBoard(), player));	//board before
+			if (startField != endField && getStack(startField, getBoard()).startsWith(nextPlayerString())
+//					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
+			) { // geht so nicht
 
-					if (! (repeatingState() || winCheck(player))) 
+				String newBoard = updateBoard(startField, steps, endField);
+
+				if (getStack(startField, newBoard).length() <= 4) {
+
+					setBoard(newBoard);
+					this.history.add(new Move(moveString, getBoard(), player)); // board before
+
+					if (!(repeatingState() || winCheck(player)))
 						changeNextPlayer();
-						//return aktuellen spielstand
-					return true; 
-					}
+					// return aktuellen spielstand
+					return true;
+				}
 			}
 		}
-		return false; 
+		return false;
 	}
-	
+
 	/*
 	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
 	 */
@@ -284,104 +284,148 @@ public class DeathStacksGame extends Game {
 	 * updates which player's turn it is
 	 */
 	private void changeNextPlayer() {
-		if(isRedNext())
-			setNextPlayer(bluePlayer); 
-		else 
-			setNextPlayer(redPlayer); //? oder mit nextPlayer == redPlayer
+		if (isRedNext())
+			setNextPlayer(bluePlayer);
+		else
+			setNextPlayer(redPlayer); // ? oder mit nextPlayer == redPlayer
 	}
-
 
 	/*
 	 * updates board with the move (changes stacks)
 	 */
 	private String updateBoard(String startField, Integer steps, String endField) {
-		//warning if length of stack > steps
+
+// 		if(getStack(startField, oldBoard).length() >= steps) {
+		// warning if length of stack > steps ??
+
+		String tempBoard = "";
+		String[] rowsTemp = getBoard().split("/");
+
+		for (int i = 1; i <= 6; i++) {
+			
+			if (i == Integer.parseInt(startField.substring(1)))
+				tempBoard.concat(changeStartField(startField, steps, rowsTemp));
 		
-		//ex.: a6, 1, f1  (rr, 1, bb) 
-		//res.: r, 1, rbb
-		String startStack = getStack(startField, getBoard()); 
-			//rr
-		String endStack = getStack(endField, getBoard()); 
-			//bb
-		String changedStones = startStack.substring(0,steps); 
-			//r
-		String newStart = startStack.substring(steps, startStack.length()); 
-			//r
-		String newEnd = changedStones.concat(endStack); 
-			//rbb
+			else
+				tempBoard.concat(rowsTemp[6 - i]);
+			}
 		
-		String[] rows = getBoard().split("/"); 		
-//		a6,b6,c6,d6,e6,f6
-//		a5,b5,c5,d5,e5,f5
-//		a4,b4,c4,d4,e4,f4
-//		a3,b3,c3,d3,e3,f3
-//		a2,b2,c2,d2,e2,f2
-//		a1,b1,c1,d1,e1,f1
-		String[] stacksStartField = rows[(6 - Integer.parseInt(startField.substring(1)))].split(",");
-//		a6
-//		b6
-//		c6
-//		d6
-//		e6
-//		f6
-		String[] stacksEndField = rows[(6 - Integer.parseInt(endField.substring(1)))].split(",");
-		String newBoard = "";  
+		String newBoard =""; 
+		String[] rows = tempBoard.split("/");
+		String changedStones = getStack(startField, tempBoard).substring(0, steps);
+
+		for (int i = 1; i <= 6; i++) {
+			
+		 if (i == Integer.parseInt(endField.substring(1)))
+			newBoard.concat(changeEndField(endField, steps, rows, changedStones));
+		 else
+				newBoard.concat(rows[6 - i]);
+		}
+
 		return newBoard;
 	}
 
-	
-	// checks if all stacks have one color on top
-	private boolean winCheck(Player player) {
-		
-		Set<String> res = new HashSet<String>();  
-		for (String row : getBoard().split("/")) {
-			for (String field : row.split(",")) {
-				if (field.startsWith("b")) 
-					res.add("b"); 
-				else if (field.startsWith("b")) 
-					res.add("r"); 
+	private String changeStartField(String startField, Integer steps, String[] rows) {
+		String changedRow = "";
+
+		for (int i = 1; i <= 6; i++) {
+			if (i == Integer.parseInt(startField.substring(1))) {
+
+				String rowToChange = rows[6 - i];
+				String[] rowToChangeFields = rowToChange.split(",");
+
+				int x = 0;
+
+				for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
+
+					if (alphabet == startField.charAt(0))
+						changedRow.concat(rowToChangeFields[x].substring(steps, rowToChangeFields[x].length()));
+					else
+						changedRow.concat(rowToChangeFields[x]);
+					x++;
+				}
 			}
 		}
-		if(res.size() <= 1) {
-			return finish(player);
+		return changedRow;
+	}
+
+	private String changeEndField(String endField, Integer steps, String[] rows, String changedStones) {
+		String changedRow = "";
+
+		for (int i = 1; i <= 6; i++) {
+			if (i == Integer.parseInt(endField.substring(1))) {
+
+				String rowToChange = rows[6 - i];
+				String[] rowToChangeFields = rowToChange.split(",");
+
+				int x = 0;
+
+				for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
+
+					if (alphabet == endField.charAt(0))
+						changedRow.concat(changedStones.concat(rowToChangeFields[x]));
+					else
+						changedRow.concat(rowToChangeFields[x]);
+
+					x++;
+				}
+			}
 		}
-		else 
+		return changedRow;
+	}
+
+	// checks if all stacks have one color on top
+	private boolean winCheck(Player player) {
+
+		Set<String> res = new HashSet<String>();
+		for (String row : getBoard().split("/")) {
+			for (String field : row.split(",")) {
+				if (field.startsWith("b"))
+					res.add("b");
+				else if (field.startsWith("b"))
+					res.add("r");
+			}
+		}
+		if (res.size() <= 1) {
+			return finish(player);
+		} else
 			return false;
 	}
 
-	
-
 	/*
 	 * returns the current stack of the given field
-	 * a6,b6,c6,d6,e6,f6/a5,b5,c5,d5,e5,f5/a4,b4,c4,d4,e4,f4/a3,b3,c3,d3,e3,f3/a2,b2,c2,d2,e2,f2/a1,b1,c1,d1,e1,f1
+	 * a6,b6,c6,d6,e6,f6/a5,b5,c5,d5,e5,f5/a4,b4,c4,d4,e4,f4/a3,b3,c3,d3,e3,f3/a2,b2
+	 * ,c2,d2,e2,f2/a1,b1,c1,d1,e1,f1
 	 */
 	private String getStack(String field, String board) {
 
 		String[] rows = board.split("/");
 		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",");
+
 		switch (field.substring(0)) {
-			case "a":
-				return stacks[0];
-			case "b":
-				return stacks[1];
-			case "c":
-				return stacks[2];
-			case "d":
-				return stacks[3];
-			case "e":
-				return stacks[4];
-			case "f":
-				return stacks[5];
-			default:
-				return "";
+		case "a":
+			return stacks[0];
+		case "b":
+			return stacks[1];
+		case "c":
+			return stacks[2];
+		case "d":
+			return stacks[3];
+		case "e":
+			return stacks[4];
+		case "f":
+			return stacks[5];
+		default:
+			return "";
 		}
 	}
 
 	/*
-	 * returns an ArrayList containing all stacks of that current player that are higher than 4
+	 * returns an ArrayList containing all stacks of that current player that are
+	 * higher than 4
 	 */
 	private ArrayList<String> tooTall(String board) {
-		
+
 		ArrayList<String> tallStacks = new ArrayList<String>();
 
 		for (String row : board.split("/")) {
@@ -394,24 +438,21 @@ public class DeathStacksGame extends Game {
 	}
 
 	/*
-	 * checks whether a board state exists for the third time
-	 * and ends game if so
+	 * checks whether a board state exists for the third time and ends game if so
 	 */
 	private boolean repeatingState() {
 
-		if (boardHistory.stream()
-				.filter(i -> Collections.frequency(boardHistory, i) > 2)
-				.collect(Collectors.toSet())
+		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
 				.isEmpty())
 			return false;
-		else 
-			return (! finishRepeatingState()); 
+		else
+			return (!finishRepeatingState());
 	}
-	
+
 	private boolean finishRepeatingState() {
 		if (started && !finished) {
 			finished = true;
-			draw = true; 
+			draw = true;
 			redPlayer.finishGame();
 			bluePlayer.finishGame();
 			return true;
