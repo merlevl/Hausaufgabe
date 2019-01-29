@@ -252,10 +252,11 @@ public class DeathStacksGame extends Game {
 			Integer steps = Integer.parseInt(array[1]);
 			String endField = array[2];
 
-			if (startField != endField && getStack(startField, getBoard()).startsWith(nextPlayerString())
-//					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
-			) { // geht so nicht
-
+			if ( ! startField.equals(endField) 
+					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
+	//				&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
+			) {
+				
 				String newBoard = updateBoard(startField, steps, endField);
 
 				if (getStack(startField, newBoard).length() <= 4) {
@@ -295,34 +296,35 @@ public class DeathStacksGame extends Game {
 	 */
 	private String updateBoard(String startField, Integer steps, String endField) {
 
-// 		if(getStack(startField, oldBoard).length() >= steps) {
+	//	if(getStack(startField, getBoard()).length() >= steps) {
 		// warning if length of stack > steps ??
 
 		String tempBoard = "";
 		String[] rowsTemp = getBoard().split("/");
+		
+		String changedStones = getStack(startField, getBoard()).substring(0, steps);
 
 		for (int i = 1; i <= 6; i++) {
 			
 			if (i == Integer.parseInt(startField.substring(1)))
-				tempBoard.concat(changeStartField(startField, steps, rowsTemp));
+				tempBoard.concat(changeStartField(startField, steps, rowsTemp) +"/");
 		
-			else
-				tempBoard.concat(rowsTemp[6 - i]);
+			else tempBoard.concat(rowsTemp[6 - i] + "/");
 			}
 		
 		String newBoard =""; 
 		String[] rows = tempBoard.split("/");
-		String changedStones = getStack(startField, tempBoard).substring(0, steps);
 
 		for (int i = 1; i <= 6; i++) {
 			
-		 if (i == Integer.parseInt(endField.substring(1)))
-			newBoard.concat(changeEndField(endField, steps, rows, changedStones));
-		 else
-				newBoard.concat(rows[6 - i]);
+			if (i == Integer.parseInt(endField.substring(1)))
+				newBoard.concat(changeEndField(endField, steps, rows, changedStones) +"/");
+			
+			else newBoard.concat(rows[6 - i] + "/");
 		}
-
-		return newBoard;
+		
+		return newBoard.substring(0, newBoard.length()-2);
+		
 	}
 
 	private String changeStartField(String startField, Integer steps, String[] rows) {
@@ -357,7 +359,7 @@ public class DeathStacksGame extends Game {
 
 				String rowToChange = rows[6 - i];
 				String[] rowToChangeFields = rowToChange.split(",");
-
+				
 				int x = 0;
 
 				for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
@@ -366,11 +368,10 @@ public class DeathStacksGame extends Game {
 						changedRow.concat(changedStones.concat(rowToChangeFields[x]));
 					else
 						changedRow.concat(rowToChangeFields[x]);
-
 					x++;
 				}
 			}
-		}
+		}		
 		return changedRow;
 	}
 
@@ -402,6 +403,16 @@ public class DeathStacksGame extends Game {
 		String[] rows = board.split("/");
 		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",");
 
+		int x = 0; 
+		String stack =""; 
+		for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
+			if (field.charAt(0) == alphabet)
+				 stack = stacks[x]; 
+			x++;
+		}
+		return stack; 
+		
+/*		
 		switch (field.substring(0)) {
 		case "a":
 			return stacks[0];
@@ -418,6 +429,7 @@ public class DeathStacksGame extends Game {
 		default:
 			return "";
 		}
+		*/
 	}
 
 	/*
