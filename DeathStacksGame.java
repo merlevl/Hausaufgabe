@@ -38,8 +38,9 @@ public class DeathStacksGame extends Game {
 	public DeathStacksGame() throws Exception {
 		super();
 		nextPlayer = redPlayer;
+		started = true; 
 		// isRedNext(); // bei Erstellung fängt Rot an
-		this.boardHistory.add("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
+		boardHistory.add("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 
 		// TODO: Initialization, if necessary
 	}
@@ -254,12 +255,12 @@ public class DeathStacksGame extends Game {
 
 			if ( ! startField.equals(endField) 
 					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
-	//				&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
+					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
 			) {
 				
 				String newBoard = updateBoard(startField, steps, endField);
 
-				if (getStack(startField, newBoard).length() <= 4) {
+//				if (getStack(startField, newBoard).length() <= 4) {
 
 					setBoard(newBoard);
 					this.history.add(new Move(moveString, getBoard(), player)); // board before
@@ -269,7 +270,7 @@ public class DeathStacksGame extends Game {
 					// return aktuellen spielstand
 					return true;
 				}
-			}
+//			}
 		}
 		return false;
 	}
@@ -299,137 +300,109 @@ public class DeathStacksGame extends Game {
 	//	if(getStack(startField, getBoard()).length() >= steps) {
 		// warning if length of stack > steps ??
 
-		String tempBoard = "";
-		String[] rowsTemp = getBoard().split("/");
-		
-		String changedStones = getStack(startField, getBoard()).substring(0, steps);
 
-		for (int i = 1; i <= 6; i++) {
-			
-			if (i == Integer.parseInt(startField.substring(1)))
-				tempBoard.concat(changeStartField(startField, steps, rowsTemp) +"/");
-		
-			else tempBoard.concat(rowsTemp[6 - i] + "/");
-			}
-		
-		String newBoard =""; 
-		String[] rows = tempBoard.split("/");
+		String oldboard = getBoard(); 
+		String[] rows = oldboard.split("/");
+		String changedStones = getStack(startField, oldboard).substring(0, steps);
 
-		for (int i = 1; i <= 6; i++) {
-			
-			if (i == Integer.parseInt(endField.substring(1)))
-				newBoard.concat(changeEndField(endField, steps, rows, changedStones) +"/");
-			
-			else newBoard.concat(rows[6 - i] + "/");
-		}
-		
-		return newBoard.substring(0, newBoard.length()-2);
-		
+		String tempBoard = changeStartField(startField, steps, rows);
+		String[] tempRows = tempBoard.split("/"); 
+
+		String finBoard = changeEndField(endField, changedStones, steps, tempRows);
+		return finBoard; 
 	}
+	
 
 	private String changeStartField(String startField, Integer steps, String[] rows) {
-		String changedRow = "";
+		StringBuffer newBoard = new StringBuffer();
+		int xr = 6;
+		for (String r : rows) {
+			StringBuffer newRow = new StringBuffer();
+			String[] rowFields = r.split(",", -1);
+			int xs = 0;
 
-		for (int i = 1; i <= 6; i++) {
-			if (i == Integer.parseInt(startField.substring(1))) {
+			for (String f : rowFields) {
 
-				String rowToChange = rows[6 - i];
-				String[] rowToChangeFields = rowToChange.split(",");
-
-				int x = 0;
-
-				for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
-
-					if (alphabet == startField.charAt(0))
-						changedRow.concat(rowToChangeFields[x].substring(steps, rowToChangeFields[x].length()));
-					else
-						changedRow.concat(rowToChangeFields[x]);
-					x++;
+				if (xr == (startField.charAt(1) - '0') && xs == getIndex(startField)) {
+					newRow.append(f.substring(steps) + ",");
+				} else {
+					newRow.append(f + ",");
 				}
+				xs++;
 			}
+			newRow.setLength(newRow.length() - 1);
+			newBoard.append(newRow + "/");
+			xr--;
 		}
-		return changedRow;
+		newBoard.setLength(newBoard.length() - 1);
+		return newBoard.toString();
 	}
+	
+	private String changeEndField(String endField, String changedStones, Integer steps, String[] rows) {
 
-	private String changeEndField(String endField, Integer steps, String[] rows, String changedStones) {
-		String changedRow = "";
+		StringBuffer newBoard = new StringBuffer();
+		int xr = 6;
+		
+		for (String r : rows) {
+			
+			StringBuffer newRow = new StringBuffer();
+			String[] rowFields = r.split(",", -1);
+			int xs = 0;
 
-		for (int i = 1; i <= 6; i++) {
-			if (i == Integer.parseInt(endField.substring(1))) {
-
-				String rowToChange = rows[6 - i];
-				String[] rowToChangeFields = rowToChange.split(",");
-				
-				int x = 0;
-
-				for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
-
-					if (alphabet == endField.charAt(0))
-						changedRow.concat(changedStones.concat(rowToChangeFields[x]));
-					else
-						changedRow.concat(rowToChangeFields[x]);
-					x++;
+			for (String f : rowFields) {
+				if (xr == (endField.charAt(1) - '0') && xs == getIndex(endField)) {
+					newRow.append(changedStones + f + ",");
+				} else {
+					newRow.append(f + ",");
 				}
+				xs++;
 			}
-		}		
-		return changedRow;
-	}
-
-	// checks if all stacks have one color on top
-	private boolean winCheck(Player player) {
-
-		Set<String> res = new HashSet<String>();
-		for (String row : getBoard().split("/")) {
-			for (String field : row.split(",")) {
-				if (field.startsWith("b"))
-					res.add("b");
-				else if (field.startsWith("b"))
-					res.add("r");
-			}
+			newRow.setLength(newRow.length() - 1);
+			newBoard.append(newRow + "/");
+			xr--;
 		}
-		if (res.size() <= 1) {
-			return finish(player);
-		} else
-			return false;
+		newBoard.setLength(newBoard.length() - 1);
+		return newBoard.toString();
 	}
+	
 
 	/*
 	 * returns the current stack of the given field
-	 * a6,b6,c6,d6,e6,f6/a5,b5,c5,d5,e5,f5/a4,b4,c4,d4,e4,f4/a3,b3,c3,d3,e3,f3/a2,b2
-	 * ,c2,d2,e2,f2/a1,b1,c1,d1,e1,f1
 	 */
 	private String getStack(String field, String board) {
 
 		String[] rows = board.split("/");
-		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",");
-
-		int x = 0; 
-		String stack =""; 
-		for (char alphabet = 'a'; alphabet <= 'f'; alphabet++) {
-			if (field.charAt(0) == alphabet)
-				 stack = stacks[x]; 
-			x++;
-		}
-		return stack; 
+		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",", -1);				 
+		int i = getIndex(field); 
 		
-/*		
-		switch (field.substring(0)) {
-		case "a":
-			return stacks[0];
-		case "b":
-			return stacks[1];
-		case "c":
-			return stacks[2];
-		case "d":
-			return stacks[3];
-		case "e":
-			return stacks[4];
-		case "f":
-			return stacks[5];
+		return stacks[i]; 
+	}
+	
+	/*
+	 * returns the index to look for in an array based on the first character of a given field
+	 */
+	private Integer getIndex(String startField) {
+
+		char f = startField.charAt(0);
+		int i;
+
+		switch (f) {
+		case 'a':
+			i = 0; break;
+		case 'b':
+			i = 1; break;
+		case 'c':
+			i = 2; break;
+		case 'd':
+			i = 3; break;
+		case 'e':
+			i = 4; break;
+		case 'f':
+			i = 5; break;
 		default:
-			return "";
+			i = 0; break;
 		}
-		*/
+		return i;
 	}
 
 	/*
@@ -439,11 +412,13 @@ public class DeathStacksGame extends Game {
 	private ArrayList<String> tooTall(String board) {
 
 		ArrayList<String> tallStacks = new ArrayList<String>();
-
-		for (String row : board.split("/")) {
-			for (String field : row.split(",")) {
-				if (field.length() > 4 && (field.startsWith(nextPlayerString())))
-					tallStacks.add(field.toString());
+		String[] rows = board.split("/"); 
+		
+		for (String r : rows) {
+			String[] rowFields = r.split(",", -1);
+			for (String f : rowFields) {
+				if (f.length() > 4 && (f.startsWith(nextPlayerString())))
+					tallStacks.add(f.toString());
 			}
 		}
 		return tallStacks;
@@ -472,4 +447,24 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
+	
+	/*
+	 * checks if all stacks have one color on top
+	 */
+		private boolean winCheck(Player player) {
+
+			Set<String> res = new HashSet<String>();
+			for (String row : getBoard().split("/")) {
+				for (String field : row.split(",", -1)) {
+					if (field.startsWith("b"))
+						res.add("b");
+					else if (field.startsWith("r"))
+						res.add("r");
+				}
+			}
+			if (res.size() <= 1) {
+				return finish(player);
+			} else
+				return false;
+		}
 }
