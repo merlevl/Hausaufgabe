@@ -81,29 +81,83 @@ public class TryMoveTest {
 
 	@Test
 	public void ourTests() {
-		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		
-		
-		
+//		startGame(initiaBoard, redNext)
 //		assertMove(move, red, expectedResult) 
- 
-		assertMove("d6-1-d4",true,false);	
-		assertMove("d6-1-d4",false,false);
-		
-		assertMove("d9-1-d2",true,false); 
-		assertMove("d9-1-d2",false,false); 
-		
-		assertMove("d6-10-d6",true,false); 
-		assertMove("d6-10-d6",false,false); 
-
-		assertMove("a6-1-a5",false,false); 
-		
-//		assertMove("d6-1-d5",false,true);
-//		assertMove("d6-1-d5",false,true);
-
-		
 //		assertGameState(expectedBoard, redNext, finished, draw, redWon)
+
+/*
+  		//draw wegen repeatingstate
+		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",true);		 
+		assertMove("d6-1-d5",true,true);	
+		assertMove("d1-1-d2",false,true);
+		assertMove("d5-1-d6",true,true);	
+		assertMove("d2-1-d1",false,true);
+		assertMove("d6-1-d4",true,true);	
+		assertMove("d1-1-d2",false,true);
+		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,true,false);
+*/
+				
+		
+		//Feld nicht auf Board
+		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		 
+		assertMove("a9-1-d2",false,false); 
 		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,false,false);
-		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,true,false);		
+		
+		//Rot bewegt, ist aber nicht dran
+		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		 
+		assertMove("a6-1-b6",true,false); 
+		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,false,false);
+
+		//keine Änderung des Boardstates, da 10 Schritte
+		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		 
+		assertMove("c6-10-d6",true,false); 
+		assertMove("e6-10-d6",false,false);
+		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,false,false);
+		
+		//startfield == endfield
+		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,",false);		 
+		assertMove("f1-1-f1",false,false); 
+		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,",false,false,false,false);
+		
+		//blue will Feld von rot bewegen
+		startGame(",,,,,/,,,,,/,,,,,/,,,,,/r,,,,,/rbb,rrbb,rrbb,rrbb,rrbb,rrbb",false);		 
+		assertMove("a2-1-a1",false,false); 
+		assertGameState(",,,,,/,,,,,/,,,,,/,,,,,/r,,,,,/rbb,rrbb,rrbb,rrbb,rrbb,rrbb",false,false,false,false);
+		
+		//rot will Feld von blau bewegen
+//		startGame(",,,,,/,,,,,/,,,,,/,,,,,/br,,,,,/rb,rrbb,rrbb,rrbb,rrbb,rrbb",true);		 
+//		assertMove("a2-1-a1",true,false); 
+//		assertGameState(",,,,,/,,,,,/,,,,,/,,,,,/br,,,,,/rb,rrbb,rrbb,rrbb,rrbb,rrbb",false,false,false,false);
+//		
+		//game already finished
+		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,",false);		 
+		assertMove("a2-1-a1",false,false); 
+		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,",false,true,false,false);
+
+		
+		//redWon, finished
+		startGame(",,,,,/,,,,,/,,,,,/,,,,,/r,,,,,/brb,rrbb,rrbb,rrbb,rrbb,rrbb",true);		 
+		assertMove("a2-1-a1",true,true); 
+		assertGameState(",,,,,/,,,,,/,,,,,/,,,,,/,,,,,/rbrb,rrbb,rrbb,rrbb,rrbb,rrbb",false,true,false,true);
+
+		//blueWon, finished
+		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,",false);		 
+		assertMove("f5-1-f6",false,true); 
+		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,",false,true,false,false);
+
+		//getIndex für alle Felder
+		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",true);
+		assertMove("a6-1-a5",true,true);
+		assertMove("c6-1-d5",true,true);
+		assertMove("e6-1-f5",true,true);
+		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",true,false,false,false);
+		
+		
+		
+		
+		
+//		assertMove("d6-1-d5",false,true);
+//		assertMove("d6-1-d5",false,true);
 	}
 	
 }
