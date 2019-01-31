@@ -96,12 +96,11 @@ public class TryMoveTest {
 		assertMove("d1-1-d2",false,true);
 		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,true,false);
 */
-				
 		
 		//Feld nicht auf Board
 		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		 
 		assertMove("a9-1-d2",false,false); 
-		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,false,false);
+		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,false,false,false);	
 		
 		//Rot bewegt, ist aber nicht dran
 		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false);		 
