@@ -37,10 +37,11 @@ public class DeathStacksGame extends Game {
 
 	public DeathStacksGame() throws Exception {
 		super();
-		nextPlayer = redPlayer;
-		started = true; 
+//		this.addPlayer(redPlayer); 
+//		this.addPlayer(bluePlayer); 
+//		setNextPlayer(redPlayer);
 		// isRedNext(); // bei Erstellung fängt Rot an
-		boardHistory.add("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
+		setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb"); 
 
 		// TODO: Initialization, if necessary
 	}
@@ -53,8 +54,8 @@ public class DeathStacksGame extends Game {
 		return boardHistory;
 	}
 
-	public void setBoardHistory(List<String> boardHistory) {
-		this.boardHistory = boardHistory;
+	public void setBoardHistory(String board) {
+		boardHistory.add(board); 
 	}
 
 	/*******************************************
@@ -225,12 +226,13 @@ public class DeathStacksGame extends Game {
 	 * !!!!!!!!! To be implemented !!!!!!!!!!!!
 	 ******************************************/
 
-	// übergibt Spielzustand
+	// übergibt Spielzustand für Testfälle
 	// muss nicht auf Validität geprüft werden
 	@Override
 	public void setBoard(String state) {
-		this.boardHistory.add(state);
+		boardHistory.add(state);
 	}
+	
 
 	// Abruf des Spielzustands
 	@Override
@@ -262,8 +264,8 @@ public class DeathStacksGame extends Game {
 
 //				if (getStack(startField, newBoard).length() <= 4) {
 
-					setBoard(newBoard);
-					this.history.add(new Move(moveString, getBoard(), player)); // board before
+					setBoardHistory(newBoard);
+					history.add(new Move(moveString, getBoard(), player)); // board before
 
 					if (!(repeatingState() || winCheck(player)))
 						changeNextPlayer();
