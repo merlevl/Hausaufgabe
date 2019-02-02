@@ -41,7 +41,7 @@ public class DeathStacksGame extends Game {
 //		this.addPlayer(bluePlayer); 
 //		setNextPlayer(redPlayer);
 		// isRedNext(); // bei Erstellung fängt Rot an
-		setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb"); 
+		setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 
 		// TODO: Initialization, if necessary
 	}
@@ -50,12 +50,12 @@ public class DeathStacksGame extends Game {
 		return "deathstacks";
 	}
 
-	public List<String> getBoardHistory() {
-		return boardHistory;
-	}
+//	public List<String> getBoardHistory() {
+//		return boardHistory;
+//	}
 
 	public void setBoardHistory(String board) {
-		boardHistory.add(board); 
+		boardHistory.add(board);
 	}
 
 	/*******************************************
@@ -232,7 +232,6 @@ public class DeathStacksGame extends Game {
 	public void setBoard(String state) {
 		boardHistory.add(state);
 	}
-	
 
 	// Abruf des Spielzustands
 	@Override
@@ -255,24 +254,29 @@ public class DeathStacksGame extends Game {
 			Integer steps = Integer.parseInt(array[1]);
 			String endField = array[2];
 
-			if ( ! startField.equals(endField) 
-					&& getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& ( (tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))) )
-			) {
-				
+			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
+					&& ((tooTall(getBoard()).isEmpty()
+							|| tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
+
 				String newBoard = updateBoard(startField, steps, endField);
 
-//				if (getStack(startField, newBoard).length() <= 4) {
+				if (getStack(startField, newBoard).length() <= 4) {
 
-					setBoardHistory(newBoard);
-					history.add(new Move(moveString, getBoard(), player)); // board before
+//					setBoardHistory(newBoard);
+//					history.add(new Move(moveString, getBoard(), player)); // board before
 
-					if (!(repeatingState() || winCheck(player)))
-						changeNextPlayer();
+					if (repeatingState())
+						return finishRepeatingState();
+
+					else if (winCheck(player))
+						return finish(player);
+					else
+						return changeNextPlayer();
 					// return aktuellen spielstand
-					return true;
-				}
-//			}
+				} else
+					return false;
+			} else
+				return false;
 		}
 		return false;
 	}
@@ -287,11 +291,12 @@ public class DeathStacksGame extends Game {
 	/*
 	 * updates which player's turn it is
 	 */
-	private void changeNextPlayer() {
+	private boolean changeNextPlayer() {
 		if (isRedNext())
 			setNextPlayer(bluePlayer);
 		else
-			setNextPlayer(redPlayer); // ? oder mit nextPlayer == redPlayer
+			setNextPlayer(redPlayer);
+		return true;
 	}
 
 	/*
@@ -299,21 +304,19 @@ public class DeathStacksGame extends Game {
 	 */
 	private String updateBoard(String startField, Integer steps, String endField) {
 
-	//	if(getStack(startField, getBoard()).length() >= steps) {
+		// if(getStack(startField, getBoard()).length() >= steps) {
 		// warning if length of stack > steps ??
 
-
-		String oldboard = getBoard(); 
+		String oldboard = getBoard();
 		String[] rows = oldboard.split("/");
 		String changedStones = getStack(startField, oldboard).substring(0, steps);
 
 		String tempBoard = changeStartField(startField, steps, rows);
-		String[] tempRows = tempBoard.split("/"); 
+		String[] tempRows = tempBoard.split("/");
 
 		String finBoard = changeEndField(endField, changedStones, steps, tempRows);
-		return finBoard; 
+		return finBoard;
 	}
-	
 
 	private String changeStartField(String startField, Integer steps, String[] rows) {
 		StringBuffer newBoard = new StringBuffer();
@@ -339,14 +342,14 @@ public class DeathStacksGame extends Game {
 		newBoard.setLength(newBoard.length() - 1);
 		return newBoard.toString();
 	}
-	
+
 	private String changeEndField(String endField, String changedStones, Integer steps, String[] rows) {
 
 		StringBuffer newBoard = new StringBuffer();
 		int xr = 6;
-		
+
 		for (String r : rows) {
-			
+
 			StringBuffer newRow = new StringBuffer();
 			String[] rowFields = r.split(",", -1);
 			int xs = 0;
@@ -366,7 +369,6 @@ public class DeathStacksGame extends Game {
 		newBoard.setLength(newBoard.length() - 1);
 		return newBoard.toString();
 	}
-	
 
 	/*
 	 * returns the current stack of the given field
@@ -374,14 +376,15 @@ public class DeathStacksGame extends Game {
 	private String getStack(String field, String board) {
 
 		String[] rows = board.split("/");
-		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",", -1);				 
-		int i = getIndex(field); 
-		
-		return stacks[i]; 
+		String[] stacks = rows[(6 - Integer.parseInt(field.substring(1)))].split(",", -1);
+		int i = getIndex(field);
+
+		return stacks[i];
 	}
-	
+
 	/*
-	 * returns the index to look for in an array based on the first character of a given field
+	 * returns the index to look for in an array based on the first character of a
+	 * given field
 	 */
 	private Integer getIndex(String startField) {
 
@@ -390,19 +393,26 @@ public class DeathStacksGame extends Game {
 
 		switch (f) {
 		case 'a':
-			i = 0; break;
+			i = 0;
+			break;
 		case 'b':
-			i = 1; break;
+			i = 1;
+			break;
 		case 'c':
-			i = 2; break;
+			i = 2;
+			break;
 		case 'd':
-			i = 3; break;
+			i = 3;
+			break;
 		case 'e':
-			i = 4; break;
+			i = 4;
+			break;
 		case 'f':
-			i = 5; break;
+			i = 5;
+			break;
 		default:
-			i = 0; break;
+			i = 0;
+			break;
 		}
 		return i;
 	}
@@ -414,8 +424,8 @@ public class DeathStacksGame extends Game {
 	private ArrayList<String> tooTall(String board) {
 
 		ArrayList<String> tallStacks = new ArrayList<String>();
-		String[] rows = board.split("/"); 
-		
+		String[] rows = board.split("/");
+
 		for (String r : rows) {
 			String[] rowFields = r.split(",", -1);
 			for (String f : rowFields) {
@@ -435,7 +445,7 @@ public class DeathStacksGame extends Game {
 				.isEmpty())
 			return false;
 		else
-			return (!finishRepeatingState());
+			return true;
 	}
 
 	private boolean finishRepeatingState() {
@@ -449,24 +459,23 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
-	
 	/*
 	 * checks if all stacks have one color on top
 	 */
-		private boolean winCheck(Player player) {
+	private boolean winCheck(Player player) {
 
-			Set<String> res = new HashSet<String>();
-			for (String row : getBoard().split("/")) {
-				for (String field : row.split(",", -1)) {
-					if (field.startsWith("b"))
-						res.add("b");
-					else if (field.startsWith("r"))
-						res.add("r");
-				}
+		Set<String> res = new HashSet<String>();
+		for (String row : getBoard().split("/")) {
+			for (String field : row.split(",", -1)) {
+				if (field.startsWith("b"))
+					res.add("b");
+				else if (field.startsWith("r"))
+					res.add("r");
 			}
-			if (res.size() <= 1) {
-				return finish(player);
-			} else
-				return false;
 		}
+		if (res.size() <= 1) {
+			return true;
+		} else
+			return false;
+	}
 }
