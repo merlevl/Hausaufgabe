@@ -12,7 +12,7 @@ import de.tuberlin.sese.swtpp.gameserver.model.Game;
 import de.tuberlin.sese.swtpp.gameserver.model.Move;
 import de.tuberlin.sese.swtpp.gameserver.model.Player;
 
-public class DeathStacksGame extends Game {
+public class DeathStacksGame2 extends Game {
 
 	/**
 	 * 
@@ -35,7 +35,7 @@ public class DeathStacksGame extends Game {
 	 * constructors
 	 ***********************/
 
-	public DeathStacksGame() throws Exception {
+	public DeathStacksGame2() throws Exception {
 		super();
 //		this.addPlayer(redPlayer); 
 //		this.addPlayer(bluePlayer); 
