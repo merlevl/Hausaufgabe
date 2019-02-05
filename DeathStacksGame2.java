@@ -12,7 +12,7 @@ import de.tuberlin.sese.swtpp.gameserver.model.Game;
 import de.tuberlin.sese.swtpp.gameserver.model.Move;
 import de.tuberlin.sese.swtpp.gameserver.model.Player;
 
-public class DeathStacksGame2 extends Game {
+public class DeathStacksGame extends Game {
 
 	/**
 	 * 
@@ -35,7 +35,7 @@ public class DeathStacksGame2 extends Game {
 	 * constructors
 	 ***********************/
 
-	public DeathStacksGame2() throws Exception {
+	public DeathStacksGame() throws Exception {
 		super();
 //		this.addPlayer(redPlayer); 
 //		this.addPlayer(bluePlayer); 
@@ -226,8 +226,8 @@ public class DeathStacksGame2 extends Game {
 	 * !!!!!!!!! To be implemented !!!!!!!!!!!!
 	 ******************************************/
 
-	// übergibt Spielzustand für Testfälle
-	// muss nicht auf Validität geprüft werden
+	// uebergibt Spielzustand für Testfaelle
+	// muss nicht auf Validitaet geprüft werden
 	@Override
 	public void setBoard(String state) {
 		boardHistory.add(state);
@@ -255,23 +255,24 @@ public class DeathStacksGame2 extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
+					&& checkValidStep(startField, steps, endField)
 					&& ((tooTall(getBoard()).isEmpty()
 							|| tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
 
-				String newBoard = updateBoard(startField, steps, endField);  //
+				String newBoard = updateBoard(startField, steps, endField);
 
-				if (getStack(startField, newBoard).length() <= 4) {  //wenn h�he stapel des neuen startfelds <= 4,dann 
+				if (getStack(startField, newBoard).length() <= 4) {	// wenn Höhe des Stapels des Startfields des Moves <= 4
 
 //					setBoardHistory(newBoard);
 //					history.add(new Move(moveString, getBoard(), player)); // board before
 
-					if (repeatingState())    // falls status zum 3.x gleich
+					if (repeatingState())	// falls Status zum dritten Mal gleich
 						return finishRepeatingState();
 
-					else if (winCheck(player))       // falss spieler gewonnen
-						return finish(player);       // spiel zuende
+					else if (winCheck(player))	// falls Spieler gewonnen
+						return finish(player);	// Spiel beenden
 					else
-						return changeNextPlayer();  // zum n�chsten spieler wechseln
+						return changeNextPlayer();	// zum nächsten Spieler wechseln
 					// return aktuellen spielstand
 				} else
 					return false;
@@ -314,11 +315,11 @@ public class DeathStacksGame2 extends Game {
 		String tempBoard = changeStartField(startField, steps, rows);
 		String[] tempRows = tempBoard.split("/");
 
-		String finBoard = changeEndField(endField, changedStones, steps, tempRows);//rike fragen
+		String finBoard = changeEndField(endField, changedStones, steps, tempRows); 
 		return finBoard;
 	}
 
-	private String changeStartField(String startField, Integer steps, String[] rows) {  //erstellt neue reihen
+	private String changeStartField(String startField, Integer steps, String[] rows) {
 		StringBuffer newBoard = new StringBuffer();
 		int xr = 6;
 		for (String r : rows) {
@@ -343,7 +344,7 @@ public class DeathStacksGame2 extends Game {
 		return newBoard.toString();
 	}
 
-	private String changeEndField(String endField, String changedStones, Integer steps, String[] rows) { ////erstellt neue reihe 
+	private String changeEndField(String endField, String changedStones, Integer steps, String[] rows) {
 
 		StringBuffer newBoard = new StringBuffer();
 		int xr = 6;
@@ -382,13 +383,139 @@ public class DeathStacksGame2 extends Game {
 		return stacks[i];
 	}
 
+	private Boolean checkValidStep(String startField, int steps, String endField) {
+		//d5-1-d6
+		return checkVertical(startField, steps, endField) 
+				|| checkDiagonal(startField, steps, endField)
+				|| checkHorizontal(startField, steps, endField); 
+		}
+		
+	
+	// d6-2-d4
+	private Boolean checkVertical(String startField, int steps, String endField) {
+		int s = Character.getNumericValue(startField.charAt(1)); // s = 6
+		int e = Character.getNumericValue(endField.charAt(1)); // e = 4
+		boolean bool = false;
+
+		int sPlus = s + steps;
+		int sMinus = s - steps;
+
+		if (sPlus == e || sMinus == e) {
+			bool = true;
+		}
+
+		if (sPlus > 6 && bool == false) {
+			sPlus = sPlus - 2 * (sPlus - 6);
+			if (sPlus == e)
+				bool = true;
+		}
+		if (sMinus < 1 && bool == false) {
+			sMinus = sMinus + 2 * (1 - sMinus);
+			// d2-3-d3
+			// sMinus = 2-3 = -1
+			// sMinus = -1 + 2*(1- -1) = -1 + 2*2 = -1 + 4
+			if (sMinus == e)
+				bool = true;
+		}
+		return bool;
+		
+		
+	}
+	
+
+	private Boolean checkHorizontal(String startField, int steps, String endField) {
+		int s = getIndex(startField) + 1; // s=3
+		int e = getIndex(endField) + 1; // e=2
+
+		boolean bool = false;
+
+		int sPlus = s + steps;
+		int sMinus = s - steps;
+
+		if (sPlus == e || sMinus == e) {
+			bool = true;
+		}
+
+		if (sPlus > 6 && bool == false) {
+			sPlus = sPlus - 2 * (sPlus - 6);
+			if (sPlus == e)
+				bool = true;
+		}
+		if (sMinus < 1 && bool == false) {
+			sMinus = sMinus + 2 * (1 - sMinus);
+			// d2-3-d3
+			// sMinus = 2-3 = -1
+			// sMinus = -1 + 2*(1- -1) = -1 + 2*2 = -1 + 4
+			if (sMinus == e)
+				bool = true;
+		}
+		return bool;
+	}
+	
+
+	private Boolean checkDiagonal(String startField, int steps, String endField) {
+		int sD = getIndex(startField); // 3
+		int s6 = Character.getNumericValue(startField.charAt(1)); // 6
+
+		int eB = getIndex(endField); // 1
+		int e4 = Character.getNumericValue(endField.charAt(1)); // 4
+
+		boolean bool = false;
+
+		int sDLinks = sD - steps;
+		int sDRechts = sD + steps;
+		int s6Oben = s6 + steps;
+		int s6Unten = s6 - steps;
+
+		if((sDLinks == eB && s6Oben == e4)
+				|| (sDLinks == eB && s6Unten == e4)
+				|| (sDRechts == eB && s6Oben == e4)
+				|| (sDRechts == eB && s6Unten == e4)
+
+			) 
+			bool = true;
+		
+		if(bool == false && sDLinks < 0 ) {
+			sDLinks = sDLinks + 2 * (1 - sDLinks);
+			if((sDLinks == eB && s6Unten == e4) || (sDLinks == eB && s6Oben == e4)) {
+				bool = true;
+			}
+		}
+		
+		if(bool == false && sDRechts > 5 ) {
+			sDRechts = sDRechts - 2 * (sDRechts - 5);
+			if((sDRechts == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)) {
+				bool = true;
+			}
+		}
+		
+		if(bool == false && s6Oben > 6 ) {
+			s6Oben = s6Oben - 2 * (s6Oben - 6);
+			if((sDRechts == eB && s6Oben == e4) || (sDLinks == eB && s6Oben == e4)) {
+				bool = true;
+			}
+		}
+		
+		if(bool == false && s6Unten < 1 ) {
+			s6Unten = s6Unten + 2 * (1 - s6Unten);
+			if((sDRechts == eB && s6Unten == e4) || (sDLinks == eB && s6Unten == e4)) {
+				bool = true;
+			}			
+		}
+		return bool;
+
+}
+	
+	
+	
+	
 	/*
 	 * returns the index to look for in an array based on the first character of a
 	 * given field
 	 */
-	private Integer getIndex(String startField) {
+	private Integer getIndex(String field) {
 
-		char f = startField.charAt(0);
+		char f = field.charAt(0);
 		int i;
 
 		switch (f) {
