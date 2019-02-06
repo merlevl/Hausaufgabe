@@ -239,13 +239,28 @@ public class DeathStacksGame extends Game {
 		return ((LinkedList<String>) this.boardHistory).getLast().toString();
 	}
 
-	/*
-	 * checks Move and possibly executes it
+	/**
+	 * checks: - is it the player's turn - move format - start field and end field
+	 * differ - top stone on the start field is player's stone - valid step (can be
+	 * performed diagonally, horizontally, vertically) - no stack of the player that
+	 * is too tall exists or player is moving this stack
+	 * 
+	 * updates board
+	 * 
+	 * checks: - no more than 4 remaining stones on the start field
+	 * 
+	 * updates board history
+	 * 
+	 * checks: - repeating state - win else next player's turn
+	 * 
+	 * @param move   String representation of move
+	 * @param player The player that tries the move
+	 * @return true if the move was performed
 	 */
 	@Override
 	public boolean tryMove(String moveString, Player player) {
 
-//		 Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
+//	Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 //		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
 		if (player == nextPlayer && checkMoveFormat(moveString)) {
 
@@ -255,24 +270,28 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& checkValidStep(startField, steps, endField)
-					&& ((tooTall(getBoard()).isEmpty()
-							|| tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
+					&& checkValidStep(startField, steps, endField) && ((tooTall(getBoard()).isEmpty()
+							^ tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
 
 				String newBoard = updateBoard(startField, steps, endField);
 
-				if (getStack(startField, newBoard).length() <= 4) {	// wenn Höhe des Stapels des Startfields des Moves <= 4
+				if (getStack(startField, newBoard).length() <= 4) { // Höhe des Stapels des Startfields des Moves <= 4
 
-//					setBoardHistory(newBoard);
-//					history.add(new Move(moveString, getBoard(), player)); // board before
-
-					if (repeatingState())	// falls Status zum dritten Mal gleich
-						return finishRepeatingState();
-
-					else if (winCheck(player))	// falls Spieler gewonnen
-						return finish(player);	// Spiel beenden
-					else
-						return changeNextPlayer();	// zum nächsten Spieler wechseln
+					setBoardHistory(newBoard);
+					history.add(new Move(moveString, getBoard(), player)); // board before
+ 
+					if (winCheck()) {// falls Spieler gewonnen
+							finish(player); // Spiel beenden
+						return true; 
+				}
+//					else if (repeatingState()) {// falls Status zum dritten Mal gleich
+//						finishRepeatingState();
+//						return true;
+//					}
+					else {
+						changeNextPlayer(); // zum nächsten Spieler wechseln
+						return true;
+					}
 					// return aktuellen spielstand
 				} else
 					return false;
@@ -282,26 +301,33 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
-	/*
+	/**
 	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
+	 * 
+	 * @param moveString
+	 * @return true if move matches format
 	 */
 	private boolean checkMoveFormat(String moveString) {
 		return moveString.matches("[a-f][1-6]-(\\d+)-[a-f][1-6]");
 	}
+	
+	
 
-	/*
+	/**
 	 * updates which player's turn it is
 	 */
-	private boolean changeNextPlayer() {
+	private void changeNextPlayer() {
 		if (isRedNext())
 			setNextPlayer(bluePlayer);
 		else
 			setNextPlayer(redPlayer);
-		return true;
 	}
 
-	/*
+	/**
 	 * updates board with the move (changes stacks)
+	 * 
+	 * @param startField, steps, endField
+	 * @return updated board
 	 */
 	private String updateBoard(String startField, Integer steps, String endField) {
 
@@ -315,10 +341,18 @@ public class DeathStacksGame extends Game {
 		String tempBoard = changeStartField(startField, steps, rows);
 		String[] tempRows = tempBoard.split("/");
 
-		String finBoard = changeEndField(endField, changedStones, steps, tempRows); 
+		String finBoard = changeEndField(endField, changedStones, steps, tempRows);
 		return finBoard;
 	}
 
+	/**
+	 * updates the board by changing the start field (removing stones)
+	 * 
+	 * @param startField
+	 * @param steps
+	 * @param rows
+	 * @return temporary board with changed start field
+	 */
 	private String changeStartField(String startField, Integer steps, String[] rows) {
 		StringBuffer newBoard = new StringBuffer();
 		int xr = 6;
@@ -344,6 +378,15 @@ public class DeathStacksGame extends Game {
 		return newBoard.toString();
 	}
 
+	/**
+	 * updates the board by changing the end field (adding stones)
+	 * 
+	 * @param endField
+	 * @param changedStones
+	 * @param steps
+	 * @param rows
+	 * @return updated board with changed end field
+	 */
 	private String changeEndField(String endField, String changedStones, Integer steps, String[] rows) {
 
 		StringBuffer newBoard = new StringBuffer();
@@ -371,8 +414,10 @@ public class DeathStacksGame extends Game {
 		return newBoard.toString();
 	}
 
-	/*
-	 * returns the current stack of the given field
+	/**
+	 * @param field
+	 * @param board
+	 * @return current stack of the given field
 	 */
 	private String getStack(String field, String board) {
 
@@ -384,141 +429,123 @@ public class DeathStacksGame extends Game {
 	}
 
 	private Boolean checkValidStep(String startField, int steps, String endField) {
-		//d5-1-d6
 		return checkVertical(startField, steps, endField) 
 				|| checkDiagonal(startField, steps, endField)
-				|| checkHorizontal(startField, steps, endField); 
-		}
-		
-	
-	// d6-2-d4
+				|| checkHorizontal(startField, steps, endField);
+	}
+
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed vertical
+	 */
 	private Boolean checkVertical(String startField, int steps, String endField) {
-		int s = Character.getNumericValue(startField.charAt(1)); // s = 6
-		int e = Character.getNumericValue(endField.charAt(1)); // e = 4
-		boolean bool = false;
+		int s = Character.getNumericValue(startField.charAt(1));
+		int e = Character.getNumericValue(endField.charAt(1));
 
 		int sPlus = s + steps;
 		int sMinus = s - steps;
 
-		if (sPlus == e || sMinus == e) {
-			bool = true;
-		}
+		if (sPlus == e 
+				|| sMinus == e)
+			return true;
 
-		if (sPlus > 6 && bool == false) {
-			sPlus = sPlus - 2 * (sPlus - 6);
-			if (sPlus == e)
-				bool = true;
-		}
-		if (sMinus < 1 && bool == false) {
-			sMinus = sMinus + 2 * (1 - sMinus);
-			// d2-3-d3
-			// sMinus = 2-3 = -1
-			// sMinus = -1 + 2*(1- -1) = -1 + 2*2 = -1 + 4
-			if (sMinus == e)
-				bool = true;
-		}
-		return bool;
-		
-		
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6) == e))
+			return true;
+
+		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
+			return true;
+
+		else return false;
+
 	}
-	
 
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed horizontal
+	 */
 	private Boolean checkHorizontal(String startField, int steps, String endField) {
-		int s = getIndex(startField) + 1; // s=3
-		int e = getIndex(endField) + 1; // e=2
-
-		boolean bool = false;
+		int s = getIndex(startField) + 1;
+		int e = getIndex(endField) + 1;
 
 		int sPlus = s + steps;
 		int sMinus = s - steps;
 
-		if (sPlus == e || sMinus == e) {
-			bool = true;
-		}
+		if (sPlus == e 
+				|| sMinus == e)
+			return true;
 
-		if (sPlus > 6 && bool == false) {
-			sPlus = sPlus - 2 * (sPlus - 6);
-			if (sPlus == e)
-				bool = true;
-		}
-		if (sMinus < 1 && bool == false) {
-			sMinus = sMinus + 2 * (1 - sMinus);
-			// d2-3-d3
-			// sMinus = 2-3 = -1
-			// sMinus = -1 + 2*(1- -1) = -1 + 2*2 = -1 + 4
-			if (sMinus == e)
-				bool = true;
-		}
-		return bool;
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)
+			return true;
+
+		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
+			return true;
+
+		else return false;
 	}
-	
 
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed diagonal
+	 */
 	private Boolean checkDiagonal(String startField, int steps, String endField) {
 		int sD = getIndex(startField); // 3
-		int s6 = Character.getNumericValue(startField.charAt(1)); // 6
+		int s6 = Character.getNumericValue(startField.charAt(1));
 
 		int eB = getIndex(endField); // 1
-		int e4 = Character.getNumericValue(endField.charAt(1)); // 4
-
-		boolean bool = false;
+		int e4 = Character.getNumericValue(endField.charAt(1));
 
 		int sDLinks = sD - steps;
 		int sDRechts = sD + steps;
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
 
-		if((sDLinks == eB && s6Oben == e4)
-				|| (sDLinks == eB && s6Unten == e4)
+		if ((sDLinks == eB && s6Oben == e4) 
+				|| (sDLinks == eB && s6Unten == e4) 
 				|| (sDRechts == eB && s6Oben == e4)
-				|| (sDRechts == eB && s6Unten == e4)
+				|| (sDRechts == eB && s6Unten == e4))
+			return true;
 
-			) 
-			bool = true;
-		
-		if(bool == false && sDLinks < 0 ) {
-			sDLinks = sDLinks + 2 * (1 - sDLinks);
-			if((sDLinks == eB && s6Unten == e4) || (sDLinks == eB && s6Oben == e4)) {
-				bool = true;
-			}
-		}
-		
-		if(bool == false && sDRechts > 5 ) {
-			sDRechts = sDRechts - 2 * (sDRechts - 5);
-			if((sDRechts == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)) {
-				bool = true;
-			}
-		}
-		
-		if(bool == false && s6Oben > 6 ) {
-			s6Oben = s6Oben - 2 * (s6Oben - 6);
-			if((sDRechts == eB && s6Oben == e4) || (sDLinks == eB && s6Oben == e4)) {
-				bool = true;
-			}
-		}
-		
-		if(bool == false && s6Unten < 1 ) {
-			s6Unten = s6Unten + 2 * (1 - s6Unten);
-			if((sDRechts == eB && s6Unten == e4) || (sDLinks == eB && s6Unten == e4)) {
-				bool = true;
-			}			
-		}
-		return bool;
+		if (sDLinks < 0 
+				&& ((sDLinks + 2 * (1 - sDLinks)) == eB) 
+				&& (s6Unten == e4 || s6Oben == e4))
+			return true;
 
-}
-	
-	
-	
-	
-	/*
+		if (sDRechts > 5 
+				&& (sDRechts - 2 * (sDRechts - 5) == eB) 
+				&& (s6Unten == e4 || s6Oben == e4))
+			return true;
+
+		if (s6Oben > 6
+				&& (s6Oben - 2 * (s6Oben - 6) == e4) 
+				&& (sDRechts == eB || sDLinks == eB))
+			return true;
+
+		if (s6Unten < 1 
+				&& (s6Unten + 2 * (1 - s6Unten) == e4) 
+				&& (sDRechts == eB || sDLinks == eB))
+			return true;
+
+		else return false;
+	}
+
+	/**
 	 * returns the index to look for in an array based on the first character of a
-	 * given field
+	 * given field ("a" to 0, "b" to 1, ...)
+	 * 
+	 * @param field
+	 * @return index
 	 */
 	private Integer getIndex(String field) {
 
-		char f = field.charAt(0);
-		int i;
+		int i = 0;
 
-		switch (f) {
+		switch (field.charAt(0)) {
 		case 'a':
 			i = 0;
 			break;
@@ -537,16 +564,18 @@ public class DeathStacksGame extends Game {
 		case 'f':
 			i = 5;
 			break;
-		default:
-			i = 0;
-			break;
 		}
 		return i;
 	}
 
 	/*
-	 * returns an ArrayList containing all stacks of that current player that are
-	 * higher than 4
+	 * 
+	 */
+	/**
+	 * looks for all stacks of the current player that are higher than 4
+	 * 
+	 * @param board
+	 * @return list with stacks
 	 */
 	private ArrayList<String> tooTall(String board) {
 
@@ -556,25 +585,37 @@ public class DeathStacksGame extends Game {
 		for (String r : rows) {
 			String[] rowFields = r.split(",", -1);
 			for (String f : rowFields) {
-				if (f.length() > 4 && (f.startsWith(nextPlayerString())))
+				if (f.length() > 4 
+						&& (f.startsWith(nextPlayerString())))
 					tallStacks.add(f.toString());
 			}
 		}
 		return tallStacks;
 	}
 
-	/*
-	 * checks whether a board state exists for the third time and ends game if so
+	/**
+	 * checks the repeating state rule
+	 * 
+	 * @return true if board state exists for the third time
 	 */
 	private boolean repeatingState() {
 
 		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
 				.isEmpty())
 			return false;
-		else
+		else {
+			finishRepeatingState();
 			return true;
+		}
+			
+		
 	}
 
+	/**
+	 * finishes a game based on the repating state rule
+	 * 
+	 * @return
+	 */
 	private boolean finishRepeatingState() {
 		if (started && !finished) {
 			finished = true;
@@ -586,10 +627,12 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
-	/*
-	 * checks if all stacks have one color on top
+	/**
+	 * checks if all stacks have one color (one player's string) on top
+	 * 
+	 * @return true if a player has won
 	 */
-	private boolean winCheck(Player player) {
+	private boolean winCheck() {
 
 		Set<String> res = new HashSet<String>();
 		for (String row : getBoard().split("/")) {
