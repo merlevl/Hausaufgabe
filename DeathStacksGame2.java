@@ -262,7 +262,9 @@ public class DeathStacksGame extends Game {
 
 //	Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 //		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
-		if (player == nextPlayer && checkMoveFormat(moveString)) {
+		if (player == nextPlayer 
+				&& checkMoveFormat(moveString) 
+				&& (getMinPlayers() == getMaxPlayers())) {
 
 			String[] array = moveString.split("-");
 			String startField = array[0];
@@ -270,7 +272,8 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& checkValidStep(startField, steps, endField) && ((tooTall(getBoard()).isEmpty()
+					&& checkValidStep(startField, steps, endField) 
+					&& ((tooTall(getBoard()).isEmpty()
 							^ tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
 
 				String newBoard = updateBoard(startField, steps, endField);
@@ -280,19 +283,11 @@ public class DeathStacksGame extends Game {
 					setBoardHistory(newBoard);
 					history.add(new Move(moveString, getBoard(), player)); // board before
  
-					if (winCheck()) {// falls Spieler gewonnen
-							finish(player); // Spiel beenden
-						return true; 
-				}
-//					else if (repeatingState()) {// falls Status zum dritten Mal gleich
-//						finishRepeatingState();
-//						return true;
-//					}
-					else {
+					if(! finCheck(player))	{
 						changeNextPlayer(); // zum nächsten Spieler wechseln
-						return true;
+						getStatus();
 					}
-					// return aktuellen spielstand
+					return true;					
 				} else
 					return false;
 			} else
@@ -301,6 +296,21 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
+	private boolean finCheck(Player player) {
+		if(winCheck()) {						// falls Spieler gewonnen
+			finish(player); 
+			gameInfo(); 
+			return true;
+		}
+//		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
+//			finishRepeatingState();
+//			gameInfo();
+//			return true;
+//		}
+		return false;
+	}
+	
+	
 	/**
 	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
 	 * 
@@ -430,8 +440,8 @@ public class DeathStacksGame extends Game {
 
 	private Boolean checkValidStep(String startField, int steps, String endField) {
 		return checkVertical(startField, steps, endField) 
-				|| checkDiagonal(startField, steps, endField)
-				|| checkHorizontal(startField, steps, endField);
+				|| checkHorizontal(startField, steps, endField)
+				|| checkDiagonal(startField, steps, endField);
 	}
 
 	/**
@@ -568,9 +578,7 @@ public class DeathStacksGame extends Game {
 		return i;
 	}
 
-	/*
-	 * 
-	 */
+	
 	/**
 	 * looks for all stacks of the current player that are higher than 4
 	 * 
@@ -606,9 +614,7 @@ public class DeathStacksGame extends Game {
 		else {
 			finishRepeatingState();
 			return true;
-		}
-			
-		
+		}		
 	}
 
 	/**
