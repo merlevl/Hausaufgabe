@@ -130,7 +130,6 @@ public class TryMoveTest {
 		assertMove("c6-2-e6", false, true);
 		assertGameState("bbrr,bbrr,rbrr,bbrr,bbbbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", true, false, false, false);
 		
-		
 		// tooTall, gültig, da zu hohes field bewegt wird (rot)
 		startGame("rrbb,rrbb,rrbrbb,rrbb,rrbb,brb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true);
 		assertMove("c6-2-a4", true, true);
@@ -149,10 +148,15 @@ public class TryMoveTest {
 
 		// tooTall, gültig, da zu hohes field bewegt wird
 		// rot gewinnt
-//		startGame("rrbb,rrbb,rrbrbb,rrbb,rrbb,brb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true);
-//		assertMove("c6-3-f6", true, true);
-//		assertGameState("rrbb,rrbb,rbb,rrbb,rrbb,rrbbrb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true, true, false, true);
+		startGame("rrbb,rrbb,rrbrbb,rrbb,rrbb,brb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true);
+		assertMove("c6-3-f6", true, true);
+		assertGameState("rrbb,rrbb,rbb,rrbb,rrbb,rrbbrb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true, true, false, false);	//muss redWon true sein
 		
+		// blueWon, finished
+		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
+		assertMove("f5-1-f6", false, true);
+		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,", false, true, false, false);
+
 		// draw, wegen repeating state
 //		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",true);		 
 //		assertMove("d6-1-d5",true,true);	
@@ -164,51 +168,8 @@ public class TryMoveTest {
 //		assertMove("d5-1-d6",true,true);
 //		assertMove("d2-1-d1",false,true);
 //		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",false,true,true,false);
-
-		// valid, aus spielfeld raus
-//		startGame("rr,rr,rr,rr,rr,/,,,,,/,,,,,/,,,,,/brr,,,,,/,bbb,bb,bb,bb,bb", false);
-//		assertMove("b1-3-c1", false, true);
-//		assertGameState("rr,rr,rr,rr,rr,/,,,,,/,,,,,/,,,,,/brr,,,,,/,,bbbbb,bb,bb,bb", true, false, false, false);		
 		
-		
-		// normal valid moves in all directions
-//		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb", false);
-//		assertMove("a1-1-b2", false, true);
-////		diag rechts oben
-////		"rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,b,,,,/b,bb,bb,bb,bb,bb"
-//		
-//		assertMove("e6-1-f5", true, true);
-////		diag rechts unten
-////		"rr,rr,rr,rr,r,rr/,,,,,r/,,,,,/,,,,,/,b,,,,/b,bb,bb,bb,bb,bb"
-//		
-//		assertMove("b2-1-a3", false, true);
-////		diag link oben
-////		"rr,rr,rr,rr,r,rr/,,,,,r/,,,,,/b,,,,,/,,,,,/b,bb,bb,bb,bb,bb"
-//		
-//		assertMove("f5-1-e4", true, true);
-////		diag links unten
-////		"rr,rr,rr,rr,r,rr/,,,,,/,,,,r,/b,,,,,/,,,,,/b,bb,bb,bb,bb,bb"
-//
-//		assertMove("a3-1-a2", false, true);
-////		vertic unten 
-////		"rr,rr,rr,rr,r,rr/,,,,,/,,,,r,/,,,,,/b,,,,,/b,bb,bb,bb,bb,bb"
-//		
-//		assertMove("f6-2-f4", true, true);
-////		verti unten
-////		"rr,rr,rr,rr,r,/,,,,,/,,,,r,rr/,,,,,/b,,,,,/b,bb,bb,bb,bb,bb"
-//		
-//
-////		assertMove("e4-1-f4", false, true);
-////		horiz rechts 
-////		"rr,rr,rr,rr,r,/,,,,,/,,,,,rrr/,,,,,/b,,,,,/b,bb,bb,bb,bb,bb"
-//		
-////		assertMove("f4-3-c4", true, true);
-////		horiz links
-////		"rr,rr,rr,rr,r,/,,,,,/,,rrr,,,/,,,,,/b,,,,,/b,bb,bb,bb,bb,bb"
-//		assertGameState("rr,rr,rr,rr,r,rr/,,,,,/,,,,r,/,,,,,/b,,,,,/b,bb,bb,bb,bb,bb", true, false, false, false);
 
-
-		//diag
 		startGame(",bbrr,bbrr,bbrr,bbrr,rbr/bbrr,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
 		assertMove("a5-3-a4", false, true);
 //		vertic raus oben, korrekt
@@ -284,25 +245,13 @@ public class TryMoveTest {
 		
 		assertGameState("r,,rr,,,bbr/,,,,b,brb/bbr,brr,,,brb,/brr,,,,,/,,br,,,/,,,,,", true, true, false, false);
 
-		
 	
-		// blueWon, finished
-//		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
-//		assertMove("f5-1-f6", false, true);
-//		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,", false, true, false, false);
-
+	
 		// tooTall, gültig
 //		startGame("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
 //		assertMove("c6-3-c5", false, true);
-//		assertGameState("bbrr,bbrr,brr,bbrr,bbrr,rbr/,,bbr,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false, true, false, false);
+//		assertGameState("bbrr,bbrr,brr,bbrr,bbrr,rbr/,,bbr,,,b/,,,,,/,,,,,/,,,,,/,,,,,", true, true, false, false);
 
-		
-		// getIndex für alle Felder
-//		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb", true);
-//		assertMove("a6-1-b6", true, true);
-//		assertMove("c1-1-d1", false, true);
-//		assertMove("e6-1-f5", true, true);
-//		assertGameState("r,rrr,rr,rr,r,rr/,,,,,r/,,,,,/,,,,,/,,,,,/bb,bb,b,bbb,bb,bb", false, false, false, false);
 
 
 	}
