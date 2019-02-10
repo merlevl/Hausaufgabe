@@ -28,9 +28,7 @@ public class DeathStacksGame extends Game {
 	private Player redPlayer;
 
 	// new, contains Strings of the board representations throughout the game
-	private List<String> boardHistory = new LinkedList<String>();
-
-	// TODO: internal representation of the game state
+	private List<String> boardHistory;
 
 	/************************
 	 * constructors
@@ -38,13 +36,8 @@ public class DeathStacksGame extends Game {
 
 	public DeathStacksGame() throws Exception {
 		super();
-//		this.addPlayer(redPlayer); 
-//		this.addPlayer(bluePlayer); 
-//		setNextPlayer(redPlayer);
-		// isRedNext(); // bei Erstellung fängt Rot an
-		setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
-
-		// TODO: Initialization, if necessary
+		this.boardHistory = new LinkedList<String>();
+		this.setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 	}
 
 	public String getType() {
@@ -263,9 +256,7 @@ public class DeathStacksGame extends Game {
 
 //	Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 //		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
-		if (player == nextPlayer 
-				&& checkMoveFormat(moveString) 
-				&& (getMinPlayers() == getMaxPlayers())) {
+		if (player == nextPlayer && checkMoveFormat(moveString) && (getMinPlayers() == getMaxPlayers())) {
 
 			String[] array = moveString.split("-");
 			String startField = array[0];
@@ -273,8 +264,7 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& checkValidStep(startField, steps, endField) 
-					&& ((tooTall(getBoard()).isEmpty()
+					&& checkValidStep(startField, steps, endField) && ((tooTall(getBoard()).isEmpty()
 							^ tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
 
 				String newBoard = updateBoard(startField, steps, endField);
@@ -283,12 +273,9 @@ public class DeathStacksGame extends Game {
 
 					setBoardHistory(newBoard);
 					history.add(new Move(moveString, getBoard(), player)); // board before
- 
-					if(! finCheck(player))	{
-						changeNextPlayer(); // zum nächsten Spieler wechseln
-						getStatus();
-					}
-					return true;					
+
+					finCheck(player);
+					return true;
 				} else
 					return false;
 			} else
@@ -297,38 +284,38 @@ public class DeathStacksGame extends Game {
 		return false;
 	}
 
-	private boolean finCheck(Player player) {
-		if(winCheck()) {						// falls Spieler gewonnen
-			finish(player); 
-			gameInfo(); 
-			return true;
+	private void finCheck(Player player) {
+		if (winCheck()) { // falls Spieler gewonnen
+			finish(player);
+			gameInfo();
 		}
 //		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
 //			finishRepeatingState();
 //			gameInfo();
-//			return true;
 //		}
-		return false;
+		else {
+			changeNextPlayer(); // zum nächsten Spieler wechseln
+			getStatus();
+		}
 	}
 	
 	/**
-	 * checks if number of player is correct
+	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
 	 * 
-	 * @param 
-	 * @return true if numbers of players = 2
-	 * 
+	 * @param moveString
+	 * @return true if move matches format
 	 */
-	private String checkNumbersOfPlayers() {
-		if (players.isEmpty() || players.size() > 2) {
-			return "Error";
-		} 
-		else if (players.size() == 1) {
-			GameFactory.createBot("haskell", game);
-		} 
-		
-	}
-	
-	
+/*		private boolean checkNumbersOfPlayers() {
+*			if (players.isEmpty() || players.size() > 2) {
+*				return false;
+*			} 
+*			else if (players.size() == 1) {
+*				GameFactory.createBot("haskell", game);
+*				return true;
+*			}
+*		}
+*/
+
 	/**
 	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
 	 * 
@@ -338,9 +325,19 @@ public class DeathStacksGame extends Game {
 	private boolean checkMoveFormat(String moveString) {
 		return moveString.matches("[a-f][1-6]-(\\d+)-[a-f][1-6]");
 	}
-	
-	
 
+	/**
+	 * checks if move is performed vertical, horizontal or diagonal
+	 * 
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if move is valid
+	 */
+	private Boolean checkValidStep(String startField, int steps, String endField) {
+		return checkVertical(startField, steps, endField) || checkHorizontal(startField, steps, endField)
+				|| checkDiagonal(startField, steps, endField);
+	}
 	/**
 	 * updates which player's turn it is
 	 */
@@ -456,111 +453,7 @@ public class DeathStacksGame extends Game {
 		return stacks[i];
 	}
 
-	private Boolean checkValidStep(String startField, int steps, String endField) {
-		return checkVertical(startField, steps, endField) 
-				|| checkHorizontal(startField, steps, endField)
-				|| checkDiagonal(startField, steps, endField);
-	}
-
-	/**
-	 * @param startField
-	 * @param steps
-	 * @param endField
-	 * @return true if the move was performed vertical
-	 */
-	private Boolean checkVertical(String startField, int steps, String endField) {
-		int s = Character.getNumericValue(startField.charAt(1));
-		int e = Character.getNumericValue(endField.charAt(1));
-
-		int sPlus = s + steps;
-		int sMinus = s - steps;
-
-		if (sPlus == e 
-				|| sMinus == e)
-			return true;
-
-		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6) == e))
-			return true;
-
-		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
-			return true;
-
-		else return false;
-
-	}
-
-	/**
-	 * @param startField
-	 * @param steps
-	 * @param endField
-	 * @return true if the move was performed horizontal
-	 */
-	private Boolean checkHorizontal(String startField, int steps, String endField) {
-		int s = getIndex(startField) + 1;
-		int e = getIndex(endField) + 1;
-
-		int sPlus = s + steps;
-		int sMinus = s - steps;
-
-		if (sPlus == e 
-				|| sMinus == e)
-			return true;
-
-		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)
-			return true;
-
-		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
-			return true;
-
-		else return false;
-	}
-
-	/**
-	 * @param startField
-	 * @param steps
-	 * @param endField
-	 * @return true if the move was performed diagonal
-	 */
-	private Boolean checkDiagonal(String startField, int steps, String endField) {
-		int sD = getIndex(startField); // 3
-		int s6 = Character.getNumericValue(startField.charAt(1));
-
-		int eB = getIndex(endField); // 1
-		int e4 = Character.getNumericValue(endField.charAt(1));
-
-		int sDLinks = sD - steps;
-		int sDRechts = sD + steps;
-		int s6Oben = s6 + steps;
-		int s6Unten = s6 - steps;
-
-		if ((sDLinks == eB && s6Oben == e4) 
-				|| (sDLinks == eB && s6Unten == e4) 
-				|| (sDRechts == eB && s6Oben == e4)
-				|| (sDRechts == eB && s6Unten == e4))
-			return true;
-
-		if (sDLinks < 0 
-				&& ((sDLinks + 2 * (1 - sDLinks)) == eB) 
-				&& (s6Unten == e4 || s6Oben == e4))
-			return true;
-
-		if (sDRechts > 5 
-				&& (sDRechts - 2 * (sDRechts - 5) == eB) 
-				&& (s6Unten == e4 || s6Oben == e4))
-			return true;
-
-		if (s6Oben > 6
-				&& (s6Oben - 2 * (s6Oben - 6) == e4) 
-				&& (sDRechts == eB || sDLinks == eB))
-			return true;
-
-		if (s6Unten < 1 
-				&& (s6Unten + 2 * (1 - s6Unten) == e4) 
-				&& (sDRechts == eB || sDLinks == eB))
-			return true;
-
-		else return false;
-	}
+	
 
 	/**
 	 * returns the index to look for in an array based on the first character of a
@@ -596,7 +489,6 @@ public class DeathStacksGame extends Game {
 		return i;
 	}
 
-	
 	/**
 	 * looks for all stacks of the current player that are higher than 4
 	 * 
@@ -611,8 +503,7 @@ public class DeathStacksGame extends Game {
 		for (String r : rows) {
 			String[] rowFields = r.split(",", -1);
 			for (String f : rowFields) {
-				if (f.length() > 4 
-						&& (f.startsWith(nextPlayerString())))
+				if (f.length() > 4 && (f.startsWith(nextPlayerString())))
 					tallStacks.add(f.toString());
 			}
 		}
@@ -625,14 +516,15 @@ public class DeathStacksGame extends Game {
 	 * @return true if board state exists for the third time
 	 */
 	private boolean repeatingState() {
+		Set<String> bh = boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2)
+				.collect(Collectors.toSet());
 
-		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
-				.isEmpty())
+		if (bh.isEmpty())
 			return false;
 		else {
 			finishRepeatingState();
 			return true;
-		}		
+		}
 	}
 
 	/**
@@ -670,6 +562,185 @@ public class DeathStacksGame extends Game {
 		if (res.size() <= 1) {
 			return true;
 		} else
+			return false;
+	}
+	
+	
+
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed vertical
+	 */
+	private Boolean checkVertical(String startField, int steps, String endField) {
+		int s = Character.getNumericValue(startField.charAt(1));
+		int e = Character.getNumericValue(endField.charAt(1));
+
+		int sPlus = s + steps;
+		int sMinus = s - steps;
+
+		if (sPlus == e || sMinus == e)
+			return true;
+
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6) == e))
+			return true;
+
+		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
+			return true;
+
+		else
+			return false;
+
+	}
+
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed horizontal
+	 */
+	private Boolean checkHorizontal(String startField, int steps, String endField) {
+		int s = getIndex(startField) + 1;
+		int e = getIndex(endField) + 1;
+
+		int sPlus = s + steps;
+		int sMinus = s - steps;
+
+		if (sPlus == e || sMinus == e)
+			return true;
+
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)
+			return true;
+
+		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
+			return true;
+
+		else
+			return false;
+	}
+
+	/**
+	 * @param startField
+	 * @param steps
+	 * @param endField
+	 * @return true if the move was performed diagonal
+	 */
+	private Boolean checkDiagonal(String startField, int steps, String endField) {
+		int sD = getIndex(startField); // 3
+		int s6 = Character.getNumericValue(startField.charAt(1));
+
+		int eB = getIndex(endField); // 1
+		int e4 = Character.getNumericValue(endField.charAt(1));
+
+		int sDLinks = sD - steps;
+		int sDRechts = sD + steps;
+		int s6Oben = s6 + steps;
+		int s6Unten = s6 - steps;
+
+		if ((sDLinks == eB && s6Oben == e4) || (sDLinks == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)
+				|| (sDRechts == eB && s6Unten == e4))
+			return true;
+
+		else if(checkDiagonalMirrored(sD, steps, s6, eB, e4))
+				return true;
+		else return false;
+	}
+
+	/**
+	 * checks for mirrored steps
+	 * 
+	 * @param sD
+	 * @param steps
+	 * @param s6
+	 * @param eB
+	 * @param e4
+	 * @return true if steps was performed diagonally
+	 */
+	private Boolean checkDiagonalMirrored(int sD, int steps, int s6, int eB, int e4) {
+		int sDLinks = sD - steps;
+		int sDRechts = sD + steps;
+		int s6Oben = s6 + steps;
+		int s6Unten = s6 - steps;
+		
+	if (checkDiagonalLeft(sDLinks, s6Unten, s6Oben, eB, e4)
+			|| checkDiagonalRight(sDRechts, s6Unten, s6Oben, eB, e4)
+			|| checkDiagonalTop(s6Oben, sDLinks, sDRechts, eB, e4)
+			|| checkDiagonalBottom(s6Unten, sDRechts, sDLinks, eB, e4))
+		return true;
+	else
+		return false;
+	
+	}
+	/**
+	 * mirrored on the left side
+	 * 
+	 * @param sDLinks
+	 * @param s6Unten
+	 * @param s6Oben
+	 * @param eB
+	 * @param e4
+	 * @return true if move was performed diagonally
+	 */
+	private Boolean checkDiagonalLeft(int sDLinks, int s6Unten, int s6Oben, int eB, int e4) {
+		if (sDLinks < 0 && ((sDLinks + 2 * (1 - sDLinks)) == eB) && (s6Unten == e4 || s6Oben == e4))
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * mirrored on the right side
+	 * 
+	 * @param sDRechts
+	 * @param s6Unten
+	 * @param s6Oben
+	 * @param eB
+	 * @param e4
+	 * @return true if move was performed diagonally
+	 * 
+	 */
+	private Boolean checkDiagonalRight(int sDRechts, int s6Unten, int s6Oben, int eB, int e4) {
+		if (sDRechts > 5 && (sDRechts - 2 * (sDRechts - 5) == eB) && (s6Unten == e4 || s6Oben == e4))
+			return true;
+		else
+			return false;
+
+	}
+
+	/**
+	 * 
+	 * mirrored at the top
+	 * 
+	 * @param s6Oben
+	 * @param sDLinks
+	 * @param sDRechts
+	 * @param eB
+	 * @param e4
+	 * @return true if move was performed diagonally
+	 */
+	private Boolean checkDiagonalTop(int s6Oben, int sDLinks, int sDRechts, int eB, int e4) {
+		if (s6Oben > 6 && (s6Oben - 2 * (s6Oben - 6) == e4) && (sDRechts == eB || sDLinks == eB))
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * 
+	 * mirrored at the bottom
+	 * 
+	 * @param s6Unten
+	 * @param sDRechts
+	 * @param sDLinks
+	 * @param eB
+	 * @param e4
+	 * @return true if move was performed diagonally
+	 */
+	private Boolean checkDiagonalBottom(int s6Unten, int sDRechts, int sDLinks, int eB, int e4) {
+		if (s6Unten < 1 && (s6Unten + 2 * (1 - s6Unten) == e4) && (sDRechts == eB || sDLinks == eB))
+			return true;
+		else
 			return false;
 	}
 }
