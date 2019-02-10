@@ -241,9 +241,25 @@ public class TryMoveTest {
 //		diag: nach links oben
 		
 		assertMove("e4-1-f5",false,true);
+//		"r,,rr,,,bbr/,,,,b,brb/bbr,brr,,,brb,/brr,,,,,/,,br,,,/,,,,,"
 //		diag: nach rechts oben
 		
-		assertGameState("r,,rr,,,bbr/,,,,b,brb/bbr,brr,,,brb,/brr,,,,,/,,br,,,/,,,,,", true, true, false, false);
+		assertMove("c6-1-b6",true,true); 
+//		"r,r,r,,,bbr/,,,,b,brb/bbr,brr,,,brb,/brr,,,,,/,,br,,,/,,,,,"
+
+		assertMove("b4-3-e4",false,true);
+//		"r,r,r,,,bbr/,,,,b,brb/,brr,,,bbrbrb,/brr,,,,,/,,br,,,/,,,,,"
+
+		assertMove("c6-1-b5",true,true); 
+//		"r,r,,,,bbr/,r,,,b,brb/,brr,,,bbrbrb,/brr,,,,,/,,br,,,/,,,,,"
+
+		assertMove("e4-3-d4",false,true);
+//		"r,r,,,,bbr/,r,,,b,brb/,brr,,bbr,brb,/brr,,,,,/,,br,,,/,,,,,"
+		//horiz plus raus
+		
+		
+//		vertic minus raus
+		assertGameState("r,r,,,,bbr/,r,,,b,brb/bbr,,,brr,brb,/brr,,,,,/,,br,,,/,,,,,", true, true, false, false);
 
 	
 	
