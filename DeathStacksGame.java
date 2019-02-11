@@ -313,6 +313,10 @@ public class DeathStacksGame extends Game {
 *				GameFactory.createBot("haskell", game);
 *				return true;
 *			}
+*
+*			else {
+*				return true;
+*			}
 *		}
 */
 
