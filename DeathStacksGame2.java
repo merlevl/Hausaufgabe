@@ -38,8 +38,6 @@ public class DeathStacksGame extends Game {
 		super();
 		this.boardHistory = new LinkedList<String>();
 		this.setBoard("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
-
-//		this.setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 	}
 
 	public String getType() {
@@ -275,8 +273,8 @@ public class DeathStacksGame extends Game {
 
 					setBoard(newBoard);
 					history.add(new Move(moveString, getBoard(), player)); // board before
-
 					finCheck(player);
+					
 					return true;
 				} else
 					return false;
@@ -323,8 +321,15 @@ public class DeathStacksGame extends Game {
 	 * @return true if move is valid
 	 */
 	private Boolean checkValidStep(String startField, int steps, String endField) {
-		return checkVertical(startField, steps, endField) || checkHorizontal(startField, steps, endField)
-				|| checkDiagonal(startField, steps, endField);
+//		return checkVertical(startField, steps, endField) || checkHorizontal(startField, steps, endField)
+//				|| checkDiagonal(startField, steps, endField);
+		if(checkVertical(startField, steps, endField))
+			return true; 
+		else if(checkHorizontal(startField, steps, endField))
+			return true; 
+		else if(checkDiagonal(startField, steps, endField))
+			return true; 
+		else return false;
 	}
 
 	/**
@@ -497,35 +502,35 @@ public class DeathStacksGame extends Game {
 		return tallStacks;
 	}
 
-	/**
-	 * checks the repeating state rule
-	 * 
-	 * @return true if board state exists for the third time
-	 */
-	private boolean repeatingState() {
-
-		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
-				.isEmpty())
-			return false;
-		else
-			return true;
-	}
-
-	/**
-	 * finishes a game based on the repeating state rule
-	 * 
-	 * @return
-	 */
-	private boolean finishRepeatingState() {
-		if (started && !finished) {
-			finished = true;
-			draw = true;
-			redPlayer.finishGame();
-			bluePlayer.finishGame();
-			return true;
-		}
-		return false;
-	}
+//	/**
+//	 * checks the repeating state rule
+//	 * 
+//	 * @return true if board state exists for the third time
+//	 */
+//	private boolean repeatingState() {
+//
+//		if (this.boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
+//				.isEmpty())
+//			return false;
+//		else
+//			return true;
+//	}
+//
+//	/**
+//	 * finishes a game based on the repeating state rule
+//	 * 
+//	 * @return
+//	 */
+//	private boolean finishRepeatingState() {
+//		if (started && !finished) {
+//			finished = true;
+//			draw = true;
+//			redPlayer.finishGame();
+//			bluePlayer.finishGame();
+//			return true;
+//		}
+//		return false;
+//	}
 
 	/**
 	 * checks if all stacks have one color (one player's string) on top
@@ -562,7 +567,8 @@ public class DeathStacksGame extends Game {
 		int sPlus = s + steps;
 		int sMinus = s - steps;
 
-		if (sPlus == e || sMinus == e)
+		if (sPlus == e 
+				|| sMinus == e)
 			return true;
 
 		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6) == e))
@@ -592,8 +598,7 @@ public class DeathStacksGame extends Game {
 		if (sPlus == e || sMinus == e)
 			return true;
 
-		else if (sPlus > 6 
-				&& (sPlus - 2 * (sPlus - 6)) == e)	
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)	
 			return true;
 
 		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
@@ -602,6 +607,7 @@ public class DeathStacksGame extends Game {
 		else
 			return false;
 	}
+
 
 	/**
 	 * @param startField
@@ -621,8 +627,6 @@ public class DeathStacksGame extends Game {
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
 
-//		if ((sDLinks == eB && s6Oben == e4) || (sDLinks == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)
-//				|| (sDRechts == eB && s6Unten == e4))
 		if ((sDLinks == eB 
 				&& (s6Oben == e4 || s6Unten == e4)) || (sDRechts == eB && (s6Oben == e4 || s6Unten == e4)))
 			return true;
@@ -730,4 +734,5 @@ public class DeathStacksGame extends Game {
 		else
 			return false;
 	}
+	
 }
