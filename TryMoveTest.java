@@ -84,6 +84,7 @@ public class TryMoveTest {
 //		assertMove(move, red, expectedResult) 
 //		assertGameState(expectedBoard, redNext, finished, draw, redWon)
 
+		
 		// Feld nicht auf Board
 		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb", false);
 		assertMove("a9-1-d2", false, false);
@@ -125,10 +126,11 @@ public class TryMoveTest {
 		assertMove("c6-1-c5", false, false);
 		assertGameState("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false, false, false, false);
 
+		
 		// tooTall, gültig, da zu hohes field bewegt wird (blau)
 		startGame("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
 		assertMove("c6-2-e6", false, true);
-		assertGameState("bbrr,bbrr,rbrr,bbrr,bbbbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", true, false, false, false);
+		assertGameState("bbrr,bbrr,rbrr,bbrr,bbbbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", true, false, false, false);		
 		
 		// tooTall, gültig, da zu hohes field bewegt wird (rot)
 		startGame("rrbb,rrbb,rrbrbb,rrbb,rrbb,brb/,,,,,r/,,,,,/,,,,,/,,,,,/,,,,,", true);
@@ -156,7 +158,7 @@ public class TryMoveTest {
 		startGame("bbrr,bbrr,bbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
 		assertMove("f5-1-f6", false, true);
 		assertGameState("bbrr,bbrr,bbrr,bbrr,bbrr,brbr/,,,,,/,,,,,/,,,,,/,,,,,/,,,,,", false, true, false, false);
-
+		
 		// draw, wegen repeating state
 //		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb",true);		 
 //		assertMove("d6-1-d5",true,true);	
