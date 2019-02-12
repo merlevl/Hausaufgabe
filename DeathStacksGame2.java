@@ -1,6 +1,7 @@
 package de.tuberlin.sese.swtpp.gameserver.model.deathstacks;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,7 +37,9 @@ public class DeathStacksGame extends Game {
 	public DeathStacksGame() throws Exception {
 		super();
 		this.boardHistory = new LinkedList<String>();
-		this.setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
+		this.setBoard("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
+
+//		this.setBoardHistory("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb");
 	}
 
 	public String getType() {
@@ -47,9 +50,9 @@ public class DeathStacksGame extends Game {
 //		return boardHistory;
 //	}
 
-	public void setBoardHistory(String board) {
-		boardHistory.add(board);
-	}
+//	public void setBoardHistory(String board) {
+//		boardHistory.add(board);
+//	}
 
 	/*******************************************
 	 * Game class functions already implemented
@@ -255,7 +258,7 @@ public class DeathStacksGame extends Game {
 
 //	Benutzer könnte System angreifen oder schummeln, indem er die Anfragen an den Server manipuliert
 //		draw? 	WIE KANN SPIELER DRAW REQUESTEN?
-		if (player == nextPlayer && checkMoveFormat(moveString) && (getMinPlayers() == getMaxPlayers())) {
+		if (player == nextPlayer && checkMoveFormat(moveString)) {
 
 			String[] array = moveString.split("-");
 			String startField = array[0];
@@ -263,14 +266,14 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& checkValidStep(startField, steps, endField) && ((tooTall(getBoard()).isEmpty()
-							^ tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
+					&& checkValidStep(startField, steps, endField) 
+					&& ((tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
 
 				String newBoard = updateBoard(startField, steps, endField);
 
 				if (getStack(startField, newBoard).length() <= 4) { // Höhe des Stapels des Startfields des Moves <= 4
 
-					setBoardHistory(newBoard);
+					setBoard(newBoard);
 					history.add(new Move(moveString, getBoard(), player)); // board before
 
 					finCheck(player);
@@ -287,18 +290,19 @@ public class DeathStacksGame extends Game {
 		if (winCheck()) { // falls Spieler gewonnen
 			finish(player);
 			gameInfo();
+			return;
 		}
 //		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
 //			finishRepeatingState();
 //			gameInfo();
+//		return;
 //		}
 		else {
 			changeNextPlayer(); // zum nächsten Spieler wechseln
 			getStatus();
+			return;
 		}
 	}
-	
-
 
 	/**
 	 * checks the format of the given move <start>-<steps>-<end> (d2-3-e3)
@@ -322,6 +326,7 @@ public class DeathStacksGame extends Game {
 		return checkVertical(startField, steps, endField) || checkHorizontal(startField, steps, endField)
 				|| checkDiagonal(startField, steps, endField);
 	}
+
 	/**
 	 * updates which player's turn it is
 	 */
@@ -437,8 +442,6 @@ public class DeathStacksGame extends Game {
 		return stacks[i];
 	}
 
-	
-
 	/**
 	 * returns the index to look for in an array based on the first character of a
 	 * given field ("a" to 0, "b" to 1, ...)
@@ -500,19 +503,16 @@ public class DeathStacksGame extends Game {
 	 * @return true if board state exists for the third time
 	 */
 	private boolean repeatingState() {
-		Set<String> bh = boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2)
-				.collect(Collectors.toSet());
 
-		if (bh.isEmpty())
+		if (boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
+				.isEmpty())
 			return false;
-		else {
-			finishRepeatingState();
+		else
 			return true;
-		}
 	}
 
 	/**
-	 * finishes a game based on the repating state rule
+	 * finishes a game based on the repeating state rule
 	 * 
 	 * @return
 	 */
@@ -548,8 +548,6 @@ public class DeathStacksGame extends Game {
 		} else
 			return false;
 	}
-	
-	
 
 	/**
 	 * @param startField
@@ -594,7 +592,8 @@ public class DeathStacksGame extends Game {
 		if (sPlus == e || sMinus == e)
 			return true;
 
-		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)
+		else if (sPlus > 6 
+				&& (sPlus - 2 * (sPlus - 6)) == e)	
 			return true;
 
 		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
@@ -622,13 +621,16 @@ public class DeathStacksGame extends Game {
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
 
-		if ((sDLinks == eB && s6Oben == e4) || (sDLinks == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)
-				|| (sDRechts == eB && s6Unten == e4))
+//		if ((sDLinks == eB && s6Oben == e4) || (sDLinks == eB && s6Unten == e4) || (sDRechts == eB && s6Oben == e4)
+//				|| (sDRechts == eB && s6Unten == e4))
+		if ((sDLinks == eB 
+				&& (s6Oben == e4 || s6Unten == e4)) || (sDRechts == eB && (s6Oben == e4 || s6Unten == e4)))
 			return true;
 
-		else if(checkDiagonalMirrored(sD, steps, s6, eB, e4))
-				return true;
-		else return false;
+		else if (checkDiagonalMirrored(sD, steps, s6, eB, e4))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -646,16 +648,17 @@ public class DeathStacksGame extends Game {
 		int sDRechts = sD + steps;
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
-		
+
 	if (checkDiagonalLeft(sDLinks, s6Unten, s6Oben, eB, e4)
 			|| checkDiagonalRight(sDRechts, s6Unten, s6Oben, eB, e4)
 			|| checkDiagonalTop(s6Oben, sDLinks, sDRechts, eB, e4)
 			|| checkDiagonalBottom(s6Unten, sDRechts, sDLinks, eB, e4))
 		return true;
 	else
-		return false;
-	
+			return false;
+
 	}
+
 	/**
 	 * mirrored on the left side
 	 * 
