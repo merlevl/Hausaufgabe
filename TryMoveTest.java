@@ -76,7 +76,6 @@ public class TryMoveTest {
 		assertGameState("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb", true, false, false, false);
 	}
 
-	// TODO: implement test cases of same kind as example here
 
 	@Test
 	public void ourTests() {
@@ -84,6 +83,11 @@ public class TryMoveTest {
 //		assertMove(move, red, expectedResult) 
 //		assertGameState(expectedBoard, redNext, finished, draw, redWon)
 
+		// diagonaler Move ist falsch
+		startGame("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
+		assertMove("d6-2-a3",false,false);
+		assertGameState("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false, false, false, false); 
+		
 		
 		// Feld nicht auf Board
 		startGame("rr,rr,rr,rr,rr,rr/,,,,,/,,,,,/,,,,,/,,,,,/bb,bb,bb,bb,bb,bb", false);
@@ -256,14 +260,24 @@ public class TryMoveTest {
 //		"r,r,,,,bbr/,r,,,b,brb/,brr,,,bbrbrb,/brr,,,,,/,,br,,,/,,,,,"
 
 		assertMove("e4-3-d4",false,true);
+//		horiz plus raus
 //		"r,r,,,,bbr/,r,,,b,brb/,brr,,bbr,brb,/brr,,,,,/,,br,,,/,,,,,"
-		//horiz plus raus
 		
-		
-//		vertic minus raus
-		assertGameState("r,r,,,,bbr/,r,,,b,brb/bbr,,,brr,brb,/brr,,,,,/,,br,,,/,,,,,", true, true, false, false);
+		assertMove("a6-1-b6",true,true);
+//		",rr,,,,bbr/,r,,,b,brb/,brr,,bbr,brb,/brr,,,,,/,,br,,,/,,,,,"
 
-	
+		assertMove("a3-3-d2",false,true);
+//		",rr,,,,bbr/,r,,,b,brb/,brr,,bbr,brb,/,,,,,/,,br,brr,,/,,,,,"
+
+		assertMove("b5-1-b6",true,true);
+//		",rrr,,,,bbr/,,,,b,brb/,brr,,bbr,brb,/,,,,,/,,br,brr,,/,,,,,"
+		
+		assertMove("d2-3-d3",false,true);
+//		vertic minus raus
+//		",rrr,,,,bbr/,,,,b,brb/,brr,,bbr,brb,/,,,brr,,/,,br,,,/,,,,,"
+
+		assertGameState(",rrr,,,,bbr/,,,,b,brb/bbr,,,brr,brb,/,,,brr,,/,,br,,,/,,,,,", true, true, false, false);
+		
 	
 		// tooTall, gültig
 //		startGame("bbrr,bbrr,bbrbrr,bbrr,bbrr,rbr/,,,,,b/,,,,,/,,,,,/,,,,,/,,,,,", false);
