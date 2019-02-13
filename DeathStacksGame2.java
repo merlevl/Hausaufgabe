@@ -264,8 +264,9 @@ public class DeathStacksGame extends Game {
 			String endField = array[2];
 
 			if (!startField.equals(endField) && getStack(startField, getBoard()).startsWith(nextPlayerString())
-					&& checkValidStep(startField, steps, endField) 
-					&& ((tooTall(getBoard()).isEmpty() || tooTall(getBoard()).contains(getStack(startField, getBoard()))))) {
+					&& steps <= getStack(startField, getBoard()).length() && checkValidStep(startField, steps, endField)
+					&& (tooTall(getBoard()).isEmpty()
+							|| tooTall(getBoard()).contains(getStack(startField, getBoard())))) {
 
 				String newBoard = updateBoard(startField, steps, endField);
 
@@ -274,7 +275,7 @@ public class DeathStacksGame extends Game {
 					setBoard(newBoard);
 					history.add(new Move(moveString, getBoard(), player)); // board before
 					finCheck(player);
-					
+
 					return true;
 				} else
 					return false;
@@ -289,13 +290,11 @@ public class DeathStacksGame extends Game {
 			finish(player);
 			gameInfo();
 			return;
-		}
-		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
+		} else if (repeatingState()) { // falls Status zum dritten Mal gleich
 			finishRepeatingState();
 			gameInfo();
-		return;
-		}
-		else {
+			return;
+		} else {
 			changeNextPlayer(); // zum nächsten Spieler wechseln
 			getStatus();
 			return;
@@ -323,13 +322,14 @@ public class DeathStacksGame extends Game {
 	private Boolean checkValidStep(String startField, int steps, String endField) {
 //		return checkVertical(startField, steps, endField) || checkHorizontal(startField, steps, endField)
 //				|| checkDiagonal(startField, steps, endField);
-		if(checkVertical(startField, steps, endField))
-			return true; 
-		else if(checkHorizontal(startField, steps, endField))
-			return true; 
-		else if(checkDiagonal(startField, steps, endField))
-			return true; 
-		else return false;
+		if (checkVertical(startField, steps, endField))
+			return true;
+		else if (checkHorizontal(startField, steps, endField))
+			return true;
+		else if (checkDiagonal(startField, steps, endField))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -509,8 +509,8 @@ public class DeathStacksGame extends Game {
 	 */
 	private boolean repeatingState() {
 
-		if (this.boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
-				.isEmpty())
+		if (this.boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2)
+				.collect(Collectors.toSet()).isEmpty())
 			return false;
 		else
 			return true;
@@ -523,10 +523,10 @@ public class DeathStacksGame extends Game {
 	 */
 	private void finishRepeatingState() {
 //		if (started && !finished) {
-			finished = true;
-			draw = true;
-			redPlayer.finishGame();
-			bluePlayer.finishGame();
+		finished = true;
+		draw = true;
+		redPlayer.finishGame();
+		bluePlayer.finishGame();
 //			return true;
 //		}
 //		return false;
@@ -567,8 +567,7 @@ public class DeathStacksGame extends Game {
 		int sPlus = s + steps;
 		int sMinus = s - steps;
 
-		if (sPlus == e 
-				|| sMinus == e)
+		if (sPlus == e || sMinus == e)
 			return true;
 
 		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6) == e))
@@ -598,7 +597,7 @@ public class DeathStacksGame extends Game {
 		if (sPlus == e || sMinus == e)
 			return true;
 
-		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)	
+		else if (sPlus > 6 && (sPlus - 2 * (sPlus - 6)) == e)
 			return true;
 
 		else if (sMinus < 1 && (sMinus + 2 * (1 - sMinus)) == e)
@@ -607,7 +606,6 @@ public class DeathStacksGame extends Game {
 		else
 			return false;
 	}
-
 
 	/**
 	 * @param startField
@@ -627,8 +625,7 @@ public class DeathStacksGame extends Game {
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
 
-		if ((sDLinks == eB 
-				&& (s6Oben == e4 || s6Unten == e4)) || (sDRechts == eB && (s6Oben == e4 || s6Unten == e4)))
+		if ((sDLinks == eB && (s6Oben == e4 || s6Unten == e4)) || (sDRechts == eB && (s6Oben == e4 || s6Unten == e4)))
 			return true;
 
 		else if (checkDiagonalMirrored(sD, steps, s6, eB, e4))
@@ -653,12 +650,11 @@ public class DeathStacksGame extends Game {
 		int s6Oben = s6 + steps;
 		int s6Unten = s6 - steps;
 
-	if (checkDiagonalLeft(sDLinks, s6Unten, s6Oben, eB, e4)
-			|| checkDiagonalRight(sDRechts, s6Unten, s6Oben, eB, e4)
-			|| checkDiagonalTop(s6Oben, sDLinks, sDRechts, eB, e4)
-			|| checkDiagonalBottom(s6Unten, sDRechts, sDLinks, eB, e4))
-		return true;
-	else
+		if (checkDiagonalLeft(sDLinks, s6Unten, s6Oben, eB, e4) || checkDiagonalRight(sDRechts, s6Unten, s6Oben, eB, e4)
+				|| checkDiagonalTop(s6Oben, sDLinks, sDRechts, eB, e4)
+				|| checkDiagonalBottom(s6Unten, sDRechts, sDLinks, eB, e4))
+			return true;
+		else
 			return false;
 
 	}
@@ -734,5 +730,5 @@ public class DeathStacksGame extends Game {
 		else
 			return false;
 	}
-	
+
 }
