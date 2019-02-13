@@ -290,11 +290,11 @@ public class DeathStacksGame extends Game {
 			gameInfo();
 			return;
 		}
-//		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
-//			finishRepeatingState();
-//			gameInfo();
-//		return;
-//		}
+		else if(repeatingState()) {			// falls Status zum dritten Mal gleich
+			finishRepeatingState();
+			gameInfo();
+		return;
+		}
 		else {
 			changeNextPlayer(); // zum nächsten Spieler wechseln
 			getStatus();
@@ -502,35 +502,35 @@ public class DeathStacksGame extends Game {
 		return tallStacks;
 	}
 
-//	/**
-//	 * checks the repeating state rule
-//	 * 
-//	 * @return true if board state exists for the third time
-//	 */
-//	private boolean repeatingState() {
-//
-//		if (this.boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
-//				.isEmpty())
-//			return false;
-//		else
-//			return true;
-//	}
-//
-//	/**
-//	 * finishes a game based on the repeating state rule
-//	 * 
-//	 * @return
-//	 */
-//	private boolean finishRepeatingState() {
+	/**
+	 * checks the repeating state rule
+	 * 
+	 * @return true if board state exists for the third time
+	 */
+	private boolean repeatingState() {
+
+		if (this.boardHistory.stream().filter(i -> Collections.frequency(boardHistory, i) > 2).collect(Collectors.toSet())
+				.isEmpty())
+			return false;
+		else
+			return true;
+	}
+
+	/**
+	 * finishes a game based on the repeating state rule
+	 * 
+	 * @return
+	 */
+	private void finishRepeatingState() {
 //		if (started && !finished) {
-//			finished = true;
-//			draw = true;
-//			redPlayer.finishGame();
-//			bluePlayer.finishGame();
+			finished = true;
+			draw = true;
+			redPlayer.finishGame();
+			bluePlayer.finishGame();
 //			return true;
 //		}
 //		return false;
-//	}
+	}
 
 	/**
 	 * checks if all stacks have one color (one player's string) on top
